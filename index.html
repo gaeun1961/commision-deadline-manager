@@ -3,414 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>커미션 마감 시뮬레이터</title>
+<title>작업 마감 시뮬레이터</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0e0e12;
-    --surface: #16161e;
-    --surface2: #1e1e2a;
-    --border: #2a2a3a;
-    --accent: #ff6b6b;
-    --accent2: #ffd93d;
-    --accent3: #6bcb77;
-    --text: #e8e8f0;
-    --text2: #8888aa;
-    --text3: #555570;
-    --radius: 12px;
-    --tr: 0.2s ease;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-    padding: 24px 16px 80px;
-  }
-
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 9999; opacity: 0.4;
-  }
-
-  header {
-    max-width: 820px; margin: 0 auto 32px;
-    display: flex; align-items: baseline; gap: 12px;
-  }
-  header h1 { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
-  header h1 span { color: var(--accent); }
-  header p { font-size: 12px; color: var(--text3); font-family: 'Space Mono', monospace; }
-
-  .main { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-
-  /* ── ADD CARD ── */
-  .add-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-  }
-
-  .add-card-title {
-    font-size: 13px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--accent); margin-bottom: 20px;
-  }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label { font-size: 11px; color: var(--text2); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
-
-  input[type="text"],
-  input[type="date"] {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 14px;
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px; outline: none;
-    transition: border-color var(--tr); width: 100%;
-  }
-
-  input:focus { border-color: var(--accent); }
-  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
-
-  /* 타입 토글 */
-  .type-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
-
-  .type-btn {
-    flex: 1; padding: 9px 8px;
-    border: 1px solid var(--border);
-    background: var(--surface2); color: var(--text2);
-    border-radius: 8px; cursor: pointer;
-    font-size: 12px; font-weight: 600;
-    font-family: 'Noto Sans KR', sans-serif;
-    transition: all var(--tr); text-align: center;
-  }
-
-  .type-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-
-  /* 단계 추가 영역 */
-  .stage-adder {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px;
-    margin-bottom: 12px;
-  }
-
-  .stage-adder-title {
-    font-size: 11px; color: var(--text2);
-    font-weight: 700; letter-spacing: 1px;
-    text-transform: uppercase; margin-bottom: 10px;
-  }
-
-  .stage-adder-row {
-    display: flex; gap: 8px; align-items: center;
-  }
-
-  .stage-adder-row input[type="text"] {
-    flex: 1; background: var(--bg);
-    border-radius: 6px; padding: 9px 12px; font-size: 13px;
-  }
-
-  .stage-adder-row input[type="date"] {
-    background: var(--bg);
-    border-radius: 6px; padding: 9px 10px; font-size: 12px;
-    width: 150px; flex-shrink: 0;
-  }
-
-  .date-optional {
-    font-size: 10px; color: var(--text3);
-    text-align: right; margin-top: 4px;
-  }
-
-  .stage-add-btn {
-    padding: 9px 16px;
-    background: var(--accent3); color: #0e0e12;
-    border: none; border-radius: 6px;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px; font-weight: 700;
-    cursor: pointer; transition: all var(--tr); white-space: nowrap;
-  }
-
-  .stage-add-btn:hover { background: #55c462; }
-
-  /* 단계 미리보기 */
-  .stage-preview-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-
-  .stage-preview-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 12px;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-  }
-
-  .stage-preview-left { display: flex; align-items: center; gap: 8px; }
-  .stage-preview-name { font-size: 13px; font-weight: 600; }
-
-  .stage-preview-date {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px; color: var(--accent2);
-    background: rgba(255,217,61,0.08); padding: 2px 7px; border-radius: 4px;
-  }
-
-  .stage-preview-del {
-    background: none; border: none; color: var(--text3);
-    cursor: pointer; font-size: 16px; line-height: 1;
-    padding: 2px 6px; border-radius: 4px; transition: all var(--tr);
-  }
-  .stage-preview-del:hover { color: var(--accent); background: rgba(255,107,107,0.1); }
-
-  .add-btn {
-    width: 100%; padding: 12px;
-    background: var(--accent); color: white;
-    border: none; border-radius: 8px;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px; font-weight: 700;
-    cursor: pointer; transition: all var(--tr);
-  }
-  .add-btn:hover { background: #ff4f4f; transform: translateY(-1px); }
-
-  /* ── PROJECT CARD ── */
-  .project-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    animation: slideIn 0.3s ease;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .project-header {
-    padding: 18px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer; user-select: none;
-  }
-
-  .project-header:hover { background: var(--surface2); }
-
-  .project-title-row { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-  .project-name { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .dday-badge {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px; font-weight: 700;
-    padding: 3px 9px; border-radius: 5px; white-space: nowrap; flex-shrink: 0;
-  }
-  .dday-badge.urgent  { background: rgba(255,107,107,0.2); color: var(--accent); }
-  .dday-badge.warning { background: rgba(255,217,61,0.15);  color: var(--accent2); }
-  .dday-badge.ok      { background: rgba(107,203,119,0.15); color: var(--accent3); }
-  .dday-badge.done    { background: rgba(100,100,120,0.2);  color: var(--text3); }
-
-  .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-
-  .chevron { width: 16px; height: 16px; color: var(--text3); transition: transform 0.3s ease; }
-  .project-card.open .chevron { transform: rotate(180deg); }
-
-  .delete-btn {
-    background: none; border: none; color: var(--text3);
-    cursor: pointer; font-size: 18px;
-    padding: 4px 8px; border-radius: 6px;
-    transition: all var(--tr); line-height: 1;
-  }
-  .delete-btn:hover { background: rgba(255,107,107,0.1); color: var(--accent); }
-
-  .project-body { display: none; padding: 24px; flex-direction: column; gap: 22px; }
-  .project-card.open .project-body { display: flex; }
-
-  /* 전체 진행률 */
-  .overall-progress { display: flex; flex-direction: column; gap: 8px; }
-  .overall-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .overall-label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-  .overall-pct { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 900; }
-
-  .overall-bar-track {
-    height: 10px; background: var(--surface2);
-    border-radius: 20px; overflow: hidden; border: 1px solid var(--border);
-  }
-
-  .overall-bar-fill {
-    height: 100%; border-radius: 20px;
-    background: linear-gradient(90deg, var(--accent3), #4dc957);
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .overall-sub { font-size: 12px; color: var(--text3); font-family: 'Space Mono', monospace; }
-
-  .dual-progress { display: flex; flex-direction: column; gap: 12px; }
-
-  .progress-row { display: flex; flex-direction: column; gap: 6px; }
-  .progress-row-top { display: flex; justify-content: space-between; align-items: baseline; }
-  .progress-row-label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-  .progress-row-pct { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 900; }
-  .stage-count-pct { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 900; }
-
-  .bar-track {
-    height: 8px; background: var(--surface2);
-    border-radius: 20px; overflow: hidden; border: 1px solid var(--border);
-  }
-  .bar-fill-avg {
-    height: 100%; border-radius: 20px;
-    background: linear-gradient(90deg, var(--accent3), #4dc957);
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .bar-fill-stage {
-    height: 100%; border-radius: 20px;
-    background: linear-gradient(90deg, #6b9bcb, #4d7dc9);
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* 단계별 진도 */
-  .section-label {
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    color: var(--text2); margin-bottom: 12px;
-  }
-
-  .stages-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .stage-row-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-
-  .stage-row-card.stage-done {
-    border-color: rgba(107,203,119,0.25);
-    background: rgba(107,203,119,0.03);
-  }
-
-  .stage-top-row {
-    display: flex; align-items: center; justify-content: space-between;
-  }
-
-  .stage-left { display: flex; align-items: center; gap: 8px; }
-
-  .stage-name-text { font-size: 14px; font-weight: 700; }
-
-  .stage-date-badge {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px; padding: 2px 7px; border-radius: 4px;
-  }
-  .stage-date-badge.urgent  { background: rgba(255,107,107,0.15); color: var(--accent); }
-  .stage-date-badge.warning { background: rgba(255,217,61,0.12);  color: var(--accent2); }
-  .stage-date-badge.ok      { background: rgba(107,203,119,0.12); color: var(--accent3); }
-
-  .stage-pct-display {
-    font-family: 'Space Mono', monospace;
-    font-size: 16px; font-weight: 700;
-    color: var(--text); min-width: 44px; text-align: right;
-  }
-
-  .stage-row-card.stage-done .stage-pct-display { color: var(--accent3); }
-
-  /* 슬라이더 + 숫자 입력 행 */
-  .stage-control-row {
-    display: flex; align-items: center; gap: 10px;
-  }
-
-  /* 슬라이더 커스텀 */
-  .stage-slider {
-    flex: 1; -webkit-appearance: none; appearance: none;
-    height: 6px; border-radius: 10px; outline: none; cursor: pointer;
-    transition: all var(--tr);
-  }
-
-  .stage-slider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: var(--accent3); cursor: pointer;
-    border: 2px solid var(--bg);
-    box-shadow: 0 0 0 2px rgba(107,203,119,0.3);
-    transition: all var(--tr);
-  }
-
-  .stage-slider::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 0 4px rgba(107,203,119,0.25);
-    transform: scale(1.1);
-  }
-
-  .stage-slider::-moz-range-thumb {
-    width: 18px; height: 18px; border-radius: 50%;
-    background: var(--accent3); cursor: pointer;
-    border: 2px solid var(--bg);
-  }
-
-  /* 숫자 입력 */
-  .stage-num-input {
-    width: 58px; background: var(--bg);
-    border: 1px solid var(--border); border-radius: 6px;
-    padding: 5px 8px; color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 13px; font-weight: 700;
-    outline: none; text-align: center;
-    transition: border-color var(--tr);
-  }
-
-  .stage-num-input:focus { border-color: var(--accent3); }
-
-  .pct-sign { font-size: 12px; color: var(--text3); }
-
-  /* 메모 */
-  .memo-textarea {
-    width: 100%; background: var(--surface2);
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px 14px; color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px; outline: none; resize: vertical;
-    min-height: 60px; transition: border-color var(--tr);
-  }
-  .memo-textarea:focus { border-color: var(--accent); }
-  .memo-textarea::placeholder { color: var(--text3); }
-
-  /* 빈 상태 */
-  .empty-state {
-    text-align: center; padding: 48px 24px;
-    color: var(--text3); font-size: 13px;
-    font-family: 'Space Mono', monospace;
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-  }
-  .empty-state p:first-child { font-size: 32px; margin-bottom: 12px; }
-
-  @media (max-width: 540px) {
-    .form-row { grid-template-columns: 1fr; }
-    .type-toggle { flex-wrap: wrap; }
-    .stage-adder-row { flex-wrap: wrap; }
-    .stage-adder-row input[type="date"] { width: 100%; }
-  }
+:root {
+  --bg:#0e0e12; --surface:#16161e; --s2:#1e1e2a; --border:#2a2a3a;
+  --red:#ff6b6b; --yellow:#ffd93d; --green:#6bcb77; --blue:#6b9bcb;
+  --text:#e8e8f0; --t2:#8888aa; --t3:#555570;
+  --r:12px; --tr:.2s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;padding:24px 16px 80px}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
+
+header{max-width:820px;margin:0 auto 32px;display:flex;align-items:baseline;gap:12px}
+header h1{font-size:22px;font-weight:900;letter-spacing:-.5px}
+header h1 span{color:var(--red)}
+header p{font-size:12px;color:var(--t3);font-family:'Space Mono',monospace}
+
+.wrap{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px}
+.card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);margin-bottom:20px}
+.sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--t2);margin-bottom:10px}
+
+/* 인풋 공통 */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;color:var(--t2);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+input[type=text],input[type=number],input[type=date],textarea{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;transition:border-color var(--tr);width:100%}
+input:focus,textarea:focus{border-color:var(--red)}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+
+/* 타입 토글 */
+.type-row{display:flex;gap:8px;margin-bottom:14px}
+.tbtn{flex:1;padding:9px 6px;border:1px solid var(--border);background:var(--s2);color:var(--t2);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif;transition:all var(--tr);text-align:center}
+.tbtn.on{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* 단계 추가 박스 */
+.adder{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.adder-row{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.adder-row input[type=text]{flex:1;background:var(--bg);border-radius:6px;padding:9px 12px;font-size:13px}
+.adder-row input[type=date]{background:var(--bg);border-radius:6px;padding:9px 10px;font-size:12px;width:145px;flex-shrink:0}
+.hint{font-size:10px;color:var(--t3)}
+
+.btn-g{padding:9px 16px;background:var(--green);color:#0e0e12;border:none;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.btn-g:hover{background:#55c462}
+.btn-r{width:100%;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all var(--tr)}
+.btn-r:hover{background:#ff4f4f;transform:translateY(-1px)}
+
+/* 미리보기 */
+.preview-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.preview-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px}
+.preview-left{display:flex;align-items:center;gap:8px}
+.preview-name{font-size:13px;font-weight:600}
+.bdg-date{font-family:'Space Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(255,217,61,.1);color:var(--yellow)}
+.btn-x{background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:4px;transition:all var(--tr)}
+.btn-x:hover{color:var(--red);background:rgba(255,107,107,.1)}
+
+/* 프로젝트 카드 */
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:si .3s ease}
+@keyframes si{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+.phead{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.phead:hover{background:var(--s2)}
+.ptitle{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.pname{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.dday{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.urg{background:rgba(255,107,107,.2);color:var(--red)}
+.wrn{background:rgba(255,217,61,.15);color:var(--yellow)}
+.ok{background:rgba(107,203,119,.15);color:var(--green)}
+.dn{background:rgba(100,100,120,.2);color:var(--t3)}
+
+.pright{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.del-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:22px;line-height:1;padding:4px 8px;border-radius:6px;transition:all var(--tr);font-weight:300}
+.del-btn:hover{background:rgba(255,107,107,.15);color:var(--red)}
+
+.chv{width:16px;height:16px;color:var(--t3);transition:transform .3s ease;flex-shrink:0}
+.pcard.open .chv{transform:rotate(180deg)}
+
+.pbody{display:none;padding:24px;flex-direction:column;gap:20px}
+.pcard.open .pbody{display:flex}
+
+/* 진행률 */
+.dp{display:flex;flex-direction:column;gap:10px}
+.prog-row{display:flex;flex-direction:column;gap:5px}
+.prog-top{display:flex;justify-content:space-between;align-items:baseline}
+.prog-label{font-size:11px;color:var(--t2);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.prog-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700}
+.bar{height:8px;background:var(--s2);border-radius:20px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill-g{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--green),#4dc957);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.bar-fill-b{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),#4d7dc9);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prog-sub{font-size:11px;color:var(--t3);font-family:'Space Mono',monospace}
+
+/* 단계 블록 */
+.slist{display:flex;flex-direction:column;gap:10px}
+.sblock{background:var(--s2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.sblock.ok-block{border-color:rgba(107,203,119,.3)}
+
+.shead{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.shead-left{display:flex;align-items:center;gap:8px}
+.sname{font-size:13px;font-weight:700}
+.sdday{font-family:'Space Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px}
+.spct{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.ok-block .spct{color:var(--green)}
+
+.sbody{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+
+/* 웹툰 작업 입력 */
+.winrow{display:flex;gap:8px;align-items:center}
+.winwrap{position:relative;display:flex;align-items:center;flex:1}
+.winwrap input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 38px 8px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:14px;font-weight:700;outline:none;transition:border-color var(--tr);width:100%}
+.winwrap input:focus{border-color:var(--green)}
+.wunit{position:absolute;right:10px;font-size:11px;color:var(--t3)}
+.btn-rec{padding:8px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.btn-rec:hover{background:#ff4f4f}
+
+/* 단계 바 */
+.sbar-row{display:flex;flex-direction:column;gap:4px}
+.sbar-top{display:flex;justify-content:space-between}
+.sbar-txt{font-size:11px;color:var(--t3);font-family:'Space Mono',monospace}
+
+/* 체크박스 (일러스트) */
+.cbrow{display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px 0}
+.cb{width:20px;height:20px;flex-shrink:0;border:2px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:all var(--tr)}
+.cb.on{background:var(--green);border-color:var(--green)}
+.cb svg{display:none}
+.cb.on svg{display:block}
+.cblabel{font-size:13px;font-weight:600}
+.cbrow.done .cblabel{text-decoration:line-through;color:var(--t3)}
+
+/* 로그 */
+.loglist{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}
+.loglist::-webkit-scrollbar{width:3px}
+.loglist::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.logitem{display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border)}
+.ldate{font-family:'Space Mono',monospace;font-size:10px;color:var(--t3);min-width:76px}
+.lamt{font-family:'Space Mono',monospace;font-weight:700;color:var(--green);min-width:50px}
+.lnote{color:var(--t2);font-size:11px}
+
+/* 카드 내 단계추가 */
+.inline-adder{background:var(--s2);border:1px dashed var(--border);border-radius:8px;padding:12px}
+.inline-adder-row{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.inline-adder-row input[type=text]{flex:1;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:13px}
+.inline-adder-row input[type=date]{background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;width:140px;flex-shrink:0}
+
+/* 메모 */
+.memo{min-height:56px;resize:vertical}
+.memo::placeholder{color:var(--t3)}
+
+/* 빈 상태 */
+.empty{text-align:center;padding:48px 24px;color:var(--t3);font-size:13px;font-family:'Space Mono',monospace;background:var(--surface);border:1px dashed var(--border);border-radius:var(--r)}
+.empty p:first-child{font-size:32px;margin-bottom:12px}
+
+@media(max-width:560px){.row2,.row3{grid-template-columns:1fr}.type-row{flex-wrap:wrap}.adder-row{flex-wrap:wrap}.adder-row input[type=date]{width:100%}}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>커미션 <span>마감</span> 시뮬레이터</h1>
+  <h1>작업 <span>마감</span> 시뮬레이터</h1>
   <p>// deadline manager</p>
 </header>
 
-<div class="main">
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">+ 새 작업 추가</div>
 
-  <!-- ADD FORM -->
-  <div class="add-card">
-    <div class="add-card-title">+ 새 커미션 추가</div>
-
-    <div class="form-row">
+    <div class="row2">
       <div class="field">
-        <label>프로젝트 이름</label>
-        <input type="text" id="inp-name" placeholder="예: OO님 커미션" maxlength="50">
+        <label>작업 이름</label>
+        <input type="text" id="inp-name" placeholder="예: OO님 작업" maxlength="50">
       </div>
       <div class="field">
         <label>최종 마감일</label>
@@ -418,358 +184,542 @@
       </div>
     </div>
 
-    <!-- 타입 선택 -->
-    <div class="type-toggle">
-      <button class="type-btn active" onclick="setType('webtoon')">🎞 웹툰</button>
-      <button class="type-btn" onclick="setType('illust')">🎨 일러스트</button>
-      <button class="type-btn" onclick="setType('custom')">✏️ 직접 입력</button>
+    <div class="sec">작업 유형</div>
+    <div class="type-row">
+      <button class="tbtn on" data-type="webtoon" onclick="setType('webtoon')">🎞 웹툰</button>
+      <button class="tbtn" data-type="illust" onclick="setType('illust')">🎨 일러스트</button>
+      <button class="tbtn" data-type="custom" onclick="setType('custom')">✏️ 직접 입력</button>
     </div>
 
-    <!-- 단계 추가 -->
-    <div class="stage-adder">
-      <div class="stage-adder-title">단계 추가</div>
-      <div class="stage-adder-row">
-        <input type="text" id="new-stage-name" placeholder="단계 이름 (예: 러프, 선화...)" maxlength="20">
-        <input type="date" id="new-stage-date" title="단계 마감일 (선택사항)">
-        <button class="stage-add-btn" onclick="addStageToForm()">+ 추가</button>
+    <div id="cuts-row" class="row2" style="margin-bottom:14px">
+      <div class="field">
+        <label>전체 컷 수</label>
+        <input type="number" id="inp-cuts" placeholder="예: 80" min="1" max="9999">
       </div>
-      <div class="date-optional">📅 단계 마감일은 선택사항이에요</div>
-      <div class="stage-preview-list" id="stage-preview-list"></div>
     </div>
 
-    <button class="add-btn" onclick="addProject()">커미션 만들기</button>
+    <div class="adder">
+      <div class="sec">단계 추가</div>
+      <div class="adder-row">
+        <input type="text" id="new-sname" placeholder="단계 이름 (예: 러프, 선화...)" maxlength="20">
+        <input type="date" id="new-sdate">
+        <button class="btn-g" onclick="addFormStage()">+ 추가</button>
+      </div>
+      <div class="hint">📅 단계 마감일은 선택사항이에요</div>
+      <div class="preview-list" id="form-stage-preview"></div>
+    </div>
+
+    <button class="btn-r" onclick="submitProject()">작업 만들기</button>
   </div>
 
-  <div id="projects-container"></div>
+  <div id="proj-list"></div>
 </div>
 
 <script>
-  // ── 템플릿 ──────────────────────────────────────────────────────────
-  const TEMPLATES = {
-    webtoon: ['러프', '선화', '밑색', '명암', '보정', '완성'],
-    illust:  ['러프', '선화', '채색', '완성'],
-    custom:  []
+// ================================================================
+// 유틸
+// ================================================================
+function uid() {
+  return 's' + Date.now() + Math.random().toString(36).slice(2);
+}
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+function getDDay(ds) {
+  if (!ds) return null;
+  var a = new Date(); a.setHours(0,0,0,0);
+  var b = new Date(ds); b.setHours(0,0,0,0);
+  return Math.ceil((b - a) / 86400000);
+}
+function fmtDDay(d) {
+  if (d === null) return '';
+  if (d < 0) return 'D+' + Math.abs(d);
+  if (d === 0) return 'D-DAY';
+  return 'D-' + d;
+}
+function ddayCls(d) {
+  if (d === null || d > 7) return 'ok';
+  if (d <= 3) return 'urg';
+  return 'wrn';
+}
+function e(tag, cls, txt) {
+  var el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (txt !== undefined) el.textContent = txt;
+  return el;
+}
+
+// ================================================================
+// 저장/불러오기
+// ================================================================
+function save() {
+  try {
+    localStorage.setItem('wp3', JSON.stringify(projects));
+  } catch(err) {
+    alert('저장 공간이 부족합니다.');
+  }
+}
+function load() {
+  try {
+    var raw = localStorage.getItem('wp3');
+    return raw ? JSON.parse(raw) : [];
+  } catch(err) {
+    return [];
+  }
+}
+
+// ================================================================
+// 전역 상태
+// ================================================================
+var projects = load();
+var formStages = [];
+var currentType = 'webtoon';
+
+// ================================================================
+// 폼 - 타입 선택
+// ================================================================
+function setType(type) {
+  currentType = type;
+  document.querySelectorAll('.tbtn').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.type === type);
+  });
+  document.getElementById('cuts-row').style.display = type === 'webtoon' ? '' : 'none';
+  document.getElementById('new-sname').placeholder =
+    type === 'webtoon' ? '예: 러프, 선화, 밑색...' :
+    type === 'illust'  ? '예: 러프, 선화, 채색, 완성...' : '단계 이름';
+}
+
+// ================================================================
+// 폼 - 단계 추가/삭제
+// ================================================================
+function addFormStage() {
+  var nameEl = document.getElementById('new-sname');
+  var dateEl = document.getElementById('new-sdate');
+  var name = nameEl.value.trim().slice(0, 20);
+  if (!name) { alert('단계 이름을 입력해주세요.'); return; }
+  formStages.push({ name: name, date: dateEl.value });
+  nameEl.value = '';
+  dateEl.value = '';
+  renderFormPreview();
+}
+document.getElementById('new-sname').addEventListener('keydown', function(ev) {
+  if (ev.key === 'Enter') addFormStage();
+});
+
+function removeFormStage(idx) {
+  formStages.splice(idx, 1);
+  renderFormPreview();
+}
+
+function renderFormPreview() {
+  var wrap = document.getElementById('form-stage-preview');
+  wrap.innerHTML = '';
+  for (var i = 0; i < formStages.length; i++) {
+    (function(s, idx) {
+      var item = wrap.appendChild(e('div', 'preview-item'));
+      var left = item.appendChild(e('div', 'preview-left'));
+      left.appendChild(e('span', 'preview-name', s.name));
+      if (s.date) left.appendChild(e('span', 'bdg-date', s.date));
+      var del = item.appendChild(e('button', 'btn-x', '×'));
+      del.onclick = function() { removeFormStage(idx); };
+    })(formStages[i], i);
+  }
+}
+
+// ================================================================
+// 프로젝트 생성
+// ================================================================
+function submitProject() {
+  var name  = document.getElementById('inp-name').value.trim().slice(0, 50);
+  var date  = document.getElementById('inp-date').value;
+  var type  = currentType;
+  var cutsRaw = document.getElementById('inp-cuts').value;
+  var cuts  = type === 'webtoon' ? parseInt(cutsRaw, 10) : null;
+
+  if (!name)  { alert('작업 이름을 입력해주세요.'); return; }
+  if (!date)  { alert('마감일을 입력해주세요.'); return; }
+  if (type === 'webtoon' && (!cuts || cuts < 1)) { alert('전체 컷 수를 입력해주세요.'); return; }
+  if (formStages.length === 0) { alert('단계를 최소 1개 이상 추가해주세요.'); return; }
+
+  var stages = [];
+  for (var i = 0; i < formStages.length; i++) {
+    stages.push({
+      id:   uid(),
+      name: formStages[i].name,
+      date: formStages[i].date,
+      logs: [],
+      done: false
+    });
+  }
+
+  var proj = {
+    id:        uid(),
+    name:      name,
+    date:      date,
+    type:      type,
+    totalCuts: cuts,
+    stages:    stages,
+    memo:      ''
   };
 
-  // ── 유틸 ────────────────────────────────────────────────────────────
-  function getDDay(dateStr) {
-    if (!dateStr) return null;
-    const now = new Date(); now.setHours(0,0,0,0);
-    const end = new Date(dateStr); end.setHours(0,0,0,0);
-    return Math.ceil((end - now) / 86400000);
-  }
+  projects.unshift(proj);
+  save();
 
-  function ddayText(d) {
-    if (d === null) return '';
-    if (d < 0)   return `D+${Math.abs(d)}`;
-    if (d === 0) return 'D-DAY';
-    return `D-${d}`;
-  }
+  // 폼 초기화
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-date').value = '';
+  document.getElementById('inp-cuts').value = '';
+  formStages = [];
+  renderFormPreview();
+  renderAll();
+}
 
-  function ddayClass(d) {
-    if (d === null || d > 7) return 'ok';
-    if (d <= 3)  return 'urgent';
-    return 'warning';
-  }
+// ================================================================
+// 프로젝트 삭제  ← 핵심: 인덱스 기반 splice
+// ================================================================
+function deleteProject(projId) {
+  if (!confirm('작업을 삭제할까요?\n삭제한 데이터는 복구할 수 없어요.')) return;
 
-  function save() {
-    try { localStorage.setItem('commission_projects', JSON.stringify(projects)); }
-    catch { alert('저장 공간이 부족합니다. 오래된 커미션을 삭제해보세요.'); }
-  }
-
-  function el(tag, props = {}, text = '') {
-    const e = document.createElement(tag);
-    Object.assign(e, props);
-    if (text) e.textContent = text;
-    return e;
-  }
-
-  // 슬라이더 배경 그라디언트 업데이트
-  function updateSliderBg(slider) {
-    const val = slider.value;
-    slider.style.background = `linear-gradient(to right, #6bcb77 ${val}%, #2a2a3a ${val}%)`;
-  }
-
-  // ── 상태 ────────────────────────────────────────────────────────────
-  let projects   = JSON.parse(localStorage.getItem('commission_projects') || '[]');
-  let formStages = [];
-
-  // ── 폼: 타입 선택 ───────────────────────────────────────────────────
-  function setType(type) {
-    document.querySelectorAll('.type-btn').forEach((b, i) => {
-      b.classList.toggle('active', ['webtoon','illust','custom'][i] === type);
-    });
-    formStages = TEMPLATES[type].map(name => ({ name, date: '' }));
-    renderStagePreview();
-  }
-
-  // ── 폼: 단계 추가 ───────────────────────────────────────────────────
-  function addStageToForm() {
-    const name = document.getElementById('new-stage-name').value.trim().slice(0, 20);
-    const date = document.getElementById('new-stage-date').value;
-    if (!name) return alert('단계 이름을 입력해주세요.');
-    formStages.push({ name, date });
-    document.getElementById('new-stage-name').value = '';
-    document.getElementById('new-stage-date').value = '';
-    renderStagePreview();
-  }
-
-  document.getElementById('new-stage-name').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addStageToForm();
-  });
-
-  function removeStageFromForm(i) {
-    formStages.splice(i, 1);
-    renderStagePreview();
-  }
-
-  function renderStagePreview() {
-    const list = document.getElementById('stage-preview-list');
-    list.innerHTML = '';
-    formStages.forEach((s, i) => {
-      const item = list.appendChild(el('div', { className: 'stage-preview-item' }));
-      const left = item.appendChild(el('div', { className: 'stage-preview-left' }));
-      left.appendChild(el('span', { className: 'stage-preview-name' }, s.name));
-      if (s.date) {
-        const d = getDDay(s.date);
-        left.appendChild(el('span', { className: `stage-date-badge ${ddayClass(d)}` }, s.date));
-      }
-      const del = item.appendChild(el('button', { className: 'stage-preview-del' }, '×'));
-      del.onclick = () => removeStageFromForm(i);
-    });
-  }
-
-  // ── 커미션 추가 ─────────────────────────────────────────────────────
-  function addProject() {
-    const name = document.getElementById('inp-name').value.trim().slice(0, 50);
-    const date = document.getElementById('inp-date').value;
-    if (!name)              return alert('프로젝트 이름을 입력해주세요.');
-    if (!date)              return alert('마감일을 입력해주세요.');
-    if (!formStages.length) return alert('단계를 최소 1개 이상 추가해주세요.');
-
-    const stages = formStages.map(s => ({
-      id: `${Date.now()}-${Math.random()}`,
-      name: s.name,
-      date: s.date,
-      progress: 0   // 0~100
-    }));
-
-    projects.unshift({ id: Date.now(), name, date, stages, memo: '' });
-    save(); renderProjects();
-
-    document.getElementById('inp-name').value = '';
-    document.getElementById('inp-date').value = '';
-    formStages = [];
-    renderStagePreview();
-    // 타입 버튼도 초기화
-    document.querySelectorAll('.type-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-  }
-
-  // ── 진도율 업데이트 ─────────────────────────────────────────────────
-  function updateProgress(projId, stageId, val) {
-    const pct   = Math.max(0, Math.min(100, Math.round(Number(val))));
-    const proj  = projects.find(p => p.id === projId);
-    const stage = proj.stages.find(s => s.id === stageId);
-    stage.progress = pct;
-    save();
-
-    // 슬라이더·숫자·표시값 동기화 (리렌더 없이)
-    const card = document.getElementById(`card-${projId}`);
-    if (!card) return;
-
-    const slider = card.querySelector(`[data-stage="${stageId}"].stage-slider`);
-    const numInp = card.querySelector(`[data-stage="${stageId}"].stage-num-input`);
-    const pctDisp = card.querySelector(`[data-stage="${stageId}"].stage-pct-display`);
-    const rowCard = card.querySelector(`[data-stage-card="${stageId}"]`);
-
-    if (slider)  { slider.value = pct; updateSliderBg(slider); }
-    if (numInp)  numInp.value = pct;
-    if (pctDisp) pctDisp.textContent = `${pct}%`;
-    if (rowCard) rowCard.classList.toggle('stage-done', pct === 100);
-
-    // 전체 진행률 업데이트
-    const avgPct     = Math.round(proj.stages.reduce((s, st) => s + st.progress, 0) / proj.stages.length);
-    const stageDone  = proj.stages.filter(s => s.progress === 100).length;
-    const stagePct   = Math.round(stageDone / proj.stages.length * 100);
-
-    const avgPctEl   = card.querySelector('.overall-pct');
-    const avgFillEl  = card.querySelector('.bar-fill-avg');
-    const stgPctEl   = card.querySelector('.stage-count-pct');
-    const stgFillEl  = card.querySelector('.bar-fill-stage');
-    const overallSub = card.querySelector('.overall-sub');
-
-    if (avgPctEl)   avgPctEl.textContent  = `${avgPct}%`;
-    if (avgFillEl)  avgFillEl.style.width  = `${avgPct}%`;
-    if (stgPctEl)   stgPctEl.textContent  = `${stageDone} / ${proj.stages.length}`;
-    if (stgFillEl)  stgFillEl.style.width  = `${stagePct}%`;
-    if (overallSub) overallSub.textContent = `마감 ${proj.date}`;
-  }
-
-  // ── 커미션 삭제 ─────────────────────────────────────────────────────
-  function deleteProject(id) {
-    if (!confirm('이 커미션을 삭제할까요?')) return;
-    projects = projects.filter(p => p.id !== id);
-    save(); renderProjects();
-  }
-
-  function saveMemo(projId, value) {
-    const proj = projects.find(p => p.id === projId);
-    proj.memo = value.slice(0, 300);
-    save();
-  }
-
-  function toggleCard(id) {
-    document.getElementById(`card-${id}`).classList.toggle('open');
-  }
-
-  // ── 프로젝트 카드 렌더링 ────────────────────────────────────────────
-  function renderProject(proj) {
-    const overallPct = proj.stages.length
-      ? Math.round(proj.stages.reduce((s, st) => s + st.progress, 0) / proj.stages.length)
-      : 0;
-
-    const dday      = getDDay(proj.date);
-    const allDone   = proj.stages.every(s => s.progress === 100);
-    const doneCnt   = proj.stages.filter(s => s.progress === 100).length;
-
-    const existing  = document.getElementById(`card-${proj.id}`);
-    const isOpen    = existing?.classList.contains('open');
-
-    const card = el('div', { className: `project-card${isOpen ? ' open' : ''}`, id: `card-${proj.id}` });
-
-    // ── 헤더
-    const header = card.appendChild(el('div', { className: 'project-header' }));
-    header.onclick = () => toggleCard(proj.id);
-
-    const titleRow = header.appendChild(el('div', { className: 'project-title-row' }));
-    titleRow.appendChild(el('span', { className: 'project-name' }, proj.name));
-
-    const bClass = allDone ? 'done' : ddayClass(dday);
-    const bText  = allDone ? '✅ 완료' : ddayText(dday);
-    titleRow.appendChild(el('span', { className: `dday-badge ${bClass}` }, bText));
-
-    const right = header.appendChild(el('div', { className: 'header-right' }));
-    const delBtn = right.appendChild(el('button', { className: 'delete-btn' }, '×'));
-    delBtn.onclick = e => { e.stopPropagation(); deleteProject(proj.id); };
-    right.insertAdjacentHTML('beforeend', `
-      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>`);
-
-    // ── 바디
-    const body = card.appendChild(el('div', { className: 'project-body' }));
-
-    // 전체 진행률 (평균 진행률 + 단계 완료 수 두 개)
-    const stagePct = Math.round(doneCnt / proj.stages.length * 100);
-    body.insertAdjacentHTML('beforeend', `
-      <div class="dual-progress">
-        <div class="progress-row">
-          <div class="progress-row-top">
-            <span class="progress-row-label">평균 진행률</span>
-            <span class="overall-pct">${overallPct}%</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill-avg" style="width:${overallPct}%"></div>
-          </div>
-        </div>
-        <div class="progress-row">
-          <div class="progress-row-top">
-            <span class="progress-row-label">단계 완료</span>
-            <span class="stage-count-pct">${doneCnt} / ${proj.stages.length}</span>
-          </div>
-          <div class="bar-track">
-            <div class="bar-fill-stage" style="width:${stagePct}%"></div>
-          </div>
-        </div>
-        <div class="overall-sub">마감 ${proj.date}</div>
-      </div>`);
-
-    // 단계별 진도
-    const stageSection = body.appendChild(el('div'));
-    stageSection.appendChild(el('div', { className: 'section-label' }, '단계별 진도'));
-    const stagesList = stageSection.appendChild(el('div', { className: 'stages-list' }));
-
-    proj.stages.forEach(stage => {
-      const pct   = stage.progress;
-      const isDone = pct === 100;
-      const sd    = stage.date ? getDDay(stage.date) : null;
-
-      const rowCard = stagesList.appendChild(el('div', {
-        className: `stage-row-card${isDone ? ' stage-done' : ''}`
-      }));
-      rowCard.dataset.stageCard = stage.id;
-
-      // 상단 행: 이름 + 날짜 + 퍼센트 표시
-      const topRow = rowCard.appendChild(el('div', { className: 'stage-top-row' }));
-      const leftSide = topRow.appendChild(el('div', { className: 'stage-left' }));
-      leftSide.appendChild(el('span', { className: 'stage-name-text' }, stage.name));
-      if (stage.date) {
-        const dText = isDone ? '완료 ✓' : `${stage.date} ${ddayText(sd)}`;
-        const badge = leftSide.appendChild(el('span', { className: `stage-date-badge ${isDone ? 'ok' : ddayClass(sd)}` }));
-        badge.textContent = dText;
-      }
-
-      const pctDisp = topRow.appendChild(el('span', { className: 'stage-pct-display' }, `${pct}%`));
-      pctDisp.dataset.stage = stage.id;
-
-      // 슬라이더 + 숫자 입력
-      const ctrlRow = rowCard.appendChild(el('div', { className: 'stage-control-row' }));
-
-      const slider = ctrlRow.appendChild(document.createElement('input'));
-      slider.type = 'range'; slider.min = 0; slider.max = 100; slider.value = pct;
-      slider.className = 'stage-slider';
-      slider.dataset.stage = stage.id;
-      updateSliderBg(slider);
-
-      slider.addEventListener('input', () => updateProgress(proj.id, stage.id, slider.value));
-
-      const numInp = ctrlRow.appendChild(document.createElement('input'));
-      numInp.type = 'number'; numInp.min = 0; numInp.max = 100; numInp.value = pct;
-      numInp.className = 'stage-num-input';
-      numInp.dataset.stage = stage.id;
-
-      numInp.addEventListener('input', () => updateProgress(proj.id, stage.id, numInp.value));
-      numInp.addEventListener('blur', () => {
-        numInp.value = Math.max(0, Math.min(100, Math.round(Number(numInp.value)) || 0));
-        updateProgress(proj.id, stage.id, numInp.value);
-      });
-
-      ctrlRow.appendChild(el('span', { className: 'pct-sign' }, '%'));
-    });
-
-    // 메모
-    const memoSection = body.appendChild(el('div'));
-    memoSection.appendChild(el('div', { className: 'section-label' }, '메모'));
-    const memo = memoSection.appendChild(el('textarea', {
-      className: 'memo-textarea',
-      placeholder: '클라이언트 요청사항, 참고사항 등...',
-      maxLength: 300
-    }));
-    memo.value = proj.memo || '';
-    memo.addEventListener('input', () => saveMemo(proj.id, memo.value));
-
-    existing ? existing.replaceWith(card) : null;
-    return card;
-  }
-
-  // ── 전체 렌더링 ─────────────────────────────────────────────────────
-  function renderProjects() {
-    const container = document.getElementById('projects-container');
-    container.innerHTML = '';
-    if (!projects.length) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <p>🎨</p>
-          <p>아직 커미션이 없어요.<br>위에서 추가해보세요!</p>
-        </div>`;
-      return;
+  // id 일치하는 항목을 인덱스로 찾아 splice
+  var targetIdx = -1;
+  for (var i = 0; i < projects.length; i++) {
+    if (projects[i].id === projId) {
+      targetIdx = i;
+      break;
     }
-    projects.forEach(p => container.appendChild(renderProject(p)));
+  }
+  if (targetIdx >= 0) {
+    projects.splice(targetIdx, 1);
+    save();
+    renderAll();
+  }
+}
+
+// ================================================================
+// 웹툰 - 작업량 기록
+// ================================================================
+function recordWork(projId, stageId) {
+  var proj  = getProj(projId);  if (!proj)  return;
+  var stage = getStage(proj, stageId); if (!stage) return;
+  var inputEl = document.getElementById('wi-' + stageId);
+  if (!inputEl) return;
+  var val = parseInt(inputEl.value, 10);
+  if (!val || val < 1) { alert('작업량을 입력해주세요.'); return; }
+  stage.logs.push({ date: todayStr(), amount: val, note: '작업 완료' });
+  inputEl.value = '';
+  save();
+  refreshCard(projId);
+}
+
+// ================================================================
+// 일러스트 - 완료 토글
+// ================================================================
+function toggleDone(projId, stageId) {
+  var proj  = getProj(projId);  if (!proj)  return;
+  var stage = getStage(proj, stageId); if (!stage) return;
+  stage.done = !stage.done;
+  stage.logs.push({ date: todayStr(), amount: null, note: stage.done ? '완료 처리' : '완료 취소' });
+  save();
+  refreshCard(projId);
+}
+
+// ================================================================
+// 카드 내 단계 추가
+// ================================================================
+function addStageInCard(projId) {
+  var proj = getProj(projId); if (!proj) return;
+  var nameEl = document.getElementById('cn-' + projId);
+  var dateEl = document.getElementById('cd-' + projId);
+  if (!nameEl) return;
+  var name = nameEl.value.trim().slice(0, 20);
+  if (!name) { alert('단계 이름을 입력해주세요.'); return; }
+  proj.stages.push({ id: uid(), name: name, date: dateEl.value, logs: [], done: false });
+  nameEl.value = '';
+  if (dateEl) dateEl.value = '';
+  save();
+  refreshCard(projId);
+}
+
+// ================================================================
+// 메모 저장
+// ================================================================
+function saveMemo(projId, val) {
+  var proj = getProj(projId); if (!proj) return;
+  proj.memo = val.slice(0, 300);
+  save();
+}
+
+// ================================================================
+// 헬퍼: proj/stage 조회
+// ================================================================
+function getProj(projId) {
+  for (var i = 0; i < projects.length; i++) {
+    if (projects[i].id === projId) return projects[i];
+  }
+  return null;
+}
+function getStage(proj, stageId) {
+  for (var i = 0; i < proj.stages.length; i++) {
+    if (proj.stages[i].id === stageId) return proj.stages[i];
+  }
+  return null;
+}
+
+// ================================================================
+// 카드 토글
+// ================================================================
+function toggleCard(projId) {
+  var card = document.getElementById('card-' + projId);
+  if (card) card.classList.toggle('open');
+}
+
+// ================================================================
+// 카드 새로고침
+// ================================================================
+function refreshCard(projId) {
+  var proj = getProj(projId); if (!proj) return;
+  var old = document.getElementById('card-' + projId); if (!old) return;
+  var wasOpen = old.classList.contains('open');
+  var newCard = buildCard(proj);
+  if (wasOpen) newCard.classList.add('open');
+  old.parentNode.replaceChild(newCard, old);
+}
+
+// ================================================================
+// 카드 빌드
+// ================================================================
+function buildCard(proj) {
+  var isW    = proj.type === 'webtoon';
+  var stages = proj.stages;
+  var dday   = getDDay(proj.date);
+
+  // ── 진행률 계산
+  var avgPct = 0, stageDone = 0, stageTotal = stages.length;
+  if (stageTotal > 0) {
+    if (isW) {
+      var totalCuts = proj.totalCuts || 1;
+      var sum = 0;
+      for (var i = 0; i < stages.length; i++) {
+        var cut = 0;
+        for (var j = 0; j < stages[i].logs.length; j++) {
+          cut += stages[i].logs[j].amount || 0;
+        }
+        var sp = Math.min(100, Math.round(cut / totalCuts * 100));
+        sum += sp;
+        if (sp >= 100) stageDone++;
+      }
+      avgPct = Math.round(sum / stageTotal);
+    } else {
+      for (var i = 0; i < stages.length; i++) {
+        if (stages[i].done) stageDone++;
+      }
+      avgPct = Math.round(stageDone / stageTotal * 100);
+    }
+  }
+  var stagePct = stageTotal ? Math.round(stageDone / stageTotal * 100) : 0;
+  var allDone  = stageTotal > 0 && stageDone === stageTotal;
+
+  // ── 카드 루트
+  var card = e('div', 'pcard');
+  card.id = 'card-' + proj.id;
+
+  // ── 헤더
+  var head = card.appendChild(e('div', 'phead'));
+  // 헤더 클릭 - 삭제 버튼 위에서 클릭 시 제외
+  head.addEventListener('click', (function(pid) {
+    return function(ev) {
+      if (!ev.target.closest('.del-btn')) toggleCard(pid);
+    };
+  })(proj.id));
+
+  var titleDiv = head.appendChild(e('div', 'ptitle'));
+  titleDiv.appendChild(e('span', 'pname', proj.name));
+  var bc = allDone ? 'dn' : ddayCls(dday);
+  var bt = allDone ? '✅ 완료' : fmtDDay(dday);
+  titleDiv.appendChild(e('span', 'dday ' + bc, bt));
+
+  var pright = head.appendChild(e('div', 'pright'));
+
+  // 삭제 버튼 - 클로저로 projId 캡처
+  var delBtn = pright.appendChild(e('button', 'del-btn', '×'));
+  delBtn.title = '작업 삭제';
+  delBtn.addEventListener('click', (function(pid) {
+    return function(ev) {
+      ev.stopPropagation();
+      deleteProject(pid);
+    };
+  })(proj.id));
+
+  pright.insertAdjacentHTML('beforeend',
+    '<svg class="chv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+
+  // ── 바디
+  var body = card.appendChild(e('div', 'pbody'));
+
+  // 이중 진행률 바
+  var dp = body.appendChild(e('div', 'dp'));
+
+  var r1 = dp.appendChild(e('div', 'prog-row'));
+  var r1t = r1.appendChild(e('div', 'prog-top'));
+  r1t.appendChild(e('span', 'prog-label', isW ? '평균 진행률' : '전체 진행률'));
+  r1t.appendChild(e('span', 'prog-val', avgPct + '%'));
+  var r1b = r1.appendChild(e('div', 'bar'));
+  var r1f = r1b.appendChild(e('div', 'bar-fill-g'));
+  r1f.style.width = avgPct + '%';
+
+  var r2 = dp.appendChild(e('div', 'prog-row'));
+  var r2t = r2.appendChild(e('div', 'prog-top'));
+  r2t.appendChild(e('span', 'prog-label', '단계 완료'));
+  r2t.appendChild(e('span', 'prog-val', stageDone + ' / ' + stageTotal));
+  var r2b = r2.appendChild(e('div', 'bar'));
+  var r2f = r2b.appendChild(e('div', 'bar-fill-b'));
+  r2f.style.width = stagePct + '%';
+
+  var subTxt = '마감 ' + proj.date + (isW ? ' · 전체 ' + proj.totalCuts + '컷' : '');
+  dp.appendChild(e('div', 'prog-sub', subTxt));
+
+  // ── 단계 목록
+  var sw = body.appendChild(e('div'));
+  sw.appendChild(e('div', 'sec', '단계별 진도'));
+  var slist = sw.appendChild(e('div', 'slist'));
+
+  for (var si = 0; si < stages.length; si++) {
+    (function(stage) {
+      var sd   = stage.date ? getDDay(stage.date) : null;
+      var cuts = 0;
+      for (var li = 0; li < stage.logs.length; li++) {
+        cuts += stage.logs[li].amount || 0;
+      }
+      var spct = isW ? Math.min(100, Math.round(cuts / (proj.totalCuts || 1) * 100)) : (stage.done ? 100 : 0);
+      var isDone = isW ? spct >= 100 : stage.done;
+
+      var blk = slist.appendChild(e('div', 'sblock' + (isDone ? ' ok-block' : '')));
+
+      // 블록 헤더
+      var sh = blk.appendChild(e('div', 'shead'));
+      var sl = sh.appendChild(e('div', 'shead-left'));
+      sl.appendChild(e('span', 'sname', stage.name));
+      if (stage.date) {
+        var sdTxt = isDone ? '완료 ✓' : (stage.date + ' ' + fmtDDay(sd));
+        sl.appendChild(e('span', 'sdday ' + (isDone ? 'ok' : ddayCls(sd)), sdTxt));
+      }
+      sh.appendChild(e('span', 'spct', spct + '%'));
+
+      // 블록 바디
+      var sb = blk.appendChild(e('div', 'sbody'));
+
+      if (isW) {
+        // 단계 진행 바
+        var sbr = sb.appendChild(e('div', 'sbar-row'));
+        var sbt = sbr.appendChild(e('div', 'sbar-top'));
+        sbt.appendChild(e('span', 'sbar-txt', cuts + '컷 완료'));
+        sbt.appendChild(e('span', 'sbar-txt', '/ ' + (proj.totalCuts || '?') + '컷'));
+        var bt2 = sbr.appendChild(e('div', 'bar'));
+        var bf2 = bt2.appendChild(e('div', 'bar-fill-g'));
+        bf2.style.width = spct + '%';
+
+        // 오늘 작업량 입력
+        var wr = sb.appendChild(e('div', 'winrow'));
+        var ww = wr.appendChild(e('div', 'winwrap'));
+        var wi = document.createElement('input');
+        wi.type = 'number'; wi.min = 1; wi.max = 9999;
+        wi.placeholder = '오늘 작업한 컷 수';
+        wi.id = 'wi-' + stage.id;
+        ww.appendChild(wi);
+        ww.appendChild(e('span', 'wunit', '컷'));
+        wi.addEventListener('keydown', (function(pid, sid) {
+          return function(ev) { if (ev.key === 'Enter') recordWork(pid, sid); };
+        })(proj.id, stage.id));
+        var rb = wr.appendChild(e('button', 'btn-rec', '기록'));
+        rb.addEventListener('click', (function(pid, sid) {
+          return function() { recordWork(pid, sid); };
+        })(proj.id, stage.id));
+
+      } else {
+        // 일러스트: 체크박스
+        var cbr = sb.appendChild(e('div', 'cbrow' + (stage.done ? ' done' : '')));
+        var cb  = cbr.appendChild(e('div', 'cb' + (stage.done ? ' on' : '')));
+        cb.innerHTML = '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4,8 9.5,2.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        cbr.appendChild(e('span', 'cblabel', stage.done ? '완료됨' : '완료 표시'));
+        cbr.addEventListener('click', (function(pid, sid) {
+          return function() { toggleDone(pid, sid); };
+        })(proj.id, stage.id));
+      }
+
+      // 로그
+      if (stage.logs.length > 0) {
+        sb.appendChild(e('div', 'sec', '로그'));
+        var ll = sb.appendChild(e('div', 'loglist'));
+        var reversed = stage.logs.slice().reverse();
+        for (var li = 0; li < reversed.length; li++) {
+          var lg = reversed[li];
+          var li2 = ll.appendChild(e('div', 'logitem'));
+          li2.appendChild(e('span', 'ldate', lg.date));
+          li2.appendChild(e('span', 'lamt', lg.amount !== null ? '+' + lg.amount + '컷' : '—'));
+          li2.appendChild(e('span', 'lnote', lg.note));
+        }
+      }
+    })(stages[si]);
   }
 
-  // 초기화
-  setType('webtoon');
-  renderProjects();
+  // ── 카드 내 단계 추가
+  var aw = body.appendChild(e('div'));
+  aw.appendChild(e('div', 'sec', '단계 추가'));
+  var ia = aw.appendChild(e('div', 'inline-adder'));
+  var iar = ia.appendChild(e('div', 'inline-adder-row'));
+
+  var cnInp = document.createElement('input');
+  cnInp.type = 'text'; cnInp.placeholder = '단계 이름'; cnInp.maxLength = 20;
+  cnInp.id = 'cn-' + proj.id;
+  iar.appendChild(cnInp);
+
+  var cdInp = document.createElement('input');
+  cdInp.type = 'date';
+  cdInp.id = 'cd-' + proj.id;
+  iar.appendChild(cdInp);
+
+  var caBtn = iar.appendChild(e('button', 'btn-g', '+ 추가'));
+  caBtn.addEventListener('click', (function(pid) {
+    return function() { addStageInCard(pid); };
+  })(proj.id));
+  cnInp.addEventListener('keydown', (function(pid) {
+    return function(ev) { if (ev.key === 'Enter') addStageInCard(pid); };
+  })(proj.id));
+  ia.appendChild(e('div', 'hint', '📅 단계 마감일은 선택사항이에요'));
+
+  // ── 메모
+  var mw = body.appendChild(e('div'));
+  mw.appendChild(e('div', 'sec', '메모'));
+  var mt = mw.appendChild(document.createElement('textarea'));
+  mt.className = 'memo'; mt.placeholder = '클라이언트 요청사항, 참고사항 등...';
+  mt.maxLength = 300; mt.value = proj.memo || '';
+  mt.addEventListener('input', (function(pid) {
+    return function() { saveMemo(pid, mt.value); };
+  })(proj.id));
+
+  return card;
+}
+
+// ================================================================
+// 전체 렌더
+// ================================================================
+function renderAll() {
+  var container = document.getElementById('proj-list');
+  container.innerHTML = '';
+  if (projects.length === 0) {
+    container.innerHTML = '<div class="empty"><p>🎨</p><p>아직 작업이 없어요.<br>위에서 추가해보세요!</p></div>';
+    return;
+  }
+  for (var i = 0; i < projects.length; i++) {
+    container.appendChild(buildCard(projects[i]));
+  }
+}
+
+// ================================================================
+// 초기화
+// ================================================================
+setType('webtoon');
+renderAll();
 </script>
 </body>
 </html>
