@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커미션 마감 시뮬레이터</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #16161e;
+    --surface2: #1e1e2a;
+    --border: #2a2a3a;
+    --accent: #ff6b6b;
+    --accent2: #ffd93d;
+    --accent3: #6bcb77;
+    --text: #e8e8f0;
+    --text2: #8888aa;
+    --text3: #555570;
+    --radius: 12px;
+    --transition: 0.2s ease;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 80px;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  header {
+    max-width: 780px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  header h1 span {
+    color: var(--accent);
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .main {
+    max-width: 780px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ADD PROJECT CARD */
+  .add-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  .add-card h2 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .form-row.three {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .field input[type="text"],
+  .field input[type="number"],
+  .field input[type="date"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition);
+    width: 100%;
+  }
+
+  .field input:focus {
+    border-color: var(--accent);
+  }
+
+  .field input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+  }
+
+  .unit-toggle {
+    display: flex;
+    gap: 8px;
+  }
+
+  .unit-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all var(--transition);
+    text-align: center;
+  }
+
+  .unit-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .add-btn {
+    width: 100%;
+    margin-top: 4px;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .add-btn:hover {
+    background: #ff4f4f;
+    transform: translateY(-1px);
+  }
+
+  /* PROJECT CARD */
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .project-header {
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .project-header:hover {
+    background: var(--surface2);
+  }
+
+  .project-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .project-name {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .tag.comic { background: rgba(107, 203, 119, 0.2); color: var(--accent3); }
+  .tag.illust { background: rgba(255, 217, 61, 0.2); color: var(--accent2); }
+
+  .dday-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dday-badge.urgent { background: rgba(255, 107, 107, 0.2); color: var(--accent); }
+  .dday-badge.ok { background: rgba(107, 203, 119, 0.15); color: var(--accent3); }
+  .dday-badge.warning { background: rgba(255, 217, 61, 0.15); color: var(--accent2); }
+
+  .chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text3);
+    transition: transform 0.3s ease;
+  }
+
+  .project-card.open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .project-body {
+    display: none;
+    padding: 24px;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .project-card.open .project-body {
+    display: flex;
+  }
+
+  /* GUIDE BANNER */
+  .guide-banner {
+    background: rgba(255, 217, 61, 0.08);
+    border: 1px solid rgba(255, 217, 61, 0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--accent2);
+    text-align: center;
+    font-weight: 500;
+  }
+
+  /* PACE GRID */
+  .pace-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .pace-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+  }
+
+  .pace-card.highlight {
+    border-color: var(--accent3);
+    background: rgba(107, 203, 119, 0.05);
+  }
+
+  .pace-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .pace-card.highlight .pace-label {
+    color: var(--accent3);
+  }
+
+  .pace-value {
+    font-size: 28px;
+    font-weight: 900;
+    font-family: 'Space Mono', monospace;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pace-unit {
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* PROGRESS */
+  .progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .progress-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .progress-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .progress-bar-track {
+    height: 10px;
+    background: var(--surface2);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, var(--accent3), #4dc957);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: white;
+    opacity: 0.4;
+    border-radius: 2px;
+  }
+
+  .progress-sub {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* TODAY INPUT */
+  .today-section h3 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  .today-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .today-input-wrap {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .today-input-wrap input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 40px 10px 14px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .today-input-wrap input:focus {
+    border-color: var(--accent);
+  }
+
+  .today-unit {
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .today-add-btn {
+    padding: 10px 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+
+  .today-add-btn:hover { background: #ff4f4f; }
+
+  .rest-btn {
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+
+  .rest-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  /* LOG */
+  .log-section h3 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .log-list::-webkit-scrollbar { width: 4px; }
+  .log-list::-webkit-scrollbar-track { background: transparent; }
+  .log-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .log-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .log-item.rest-log {
+    border-color: rgba(255, 217, 61, 0.2);
+  }
+
+  .log-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 80px;
+  }
+
+  .log-amount {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--accent3);
+    min-width: 60px;
+  }
+
+  .log-item.rest-log .log-amount {
+    color: var(--accent2);
+  }
+
+  .log-note {
+    color: var(--text2);
+    font-size: 12px;
+  }
+
+  .log-empty {
+    font-size: 12px;
+    color: var(--text3);
+    text-align: center;
+    padding: 20px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* DELETE */
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .delete-btn:hover {
+    background: rgba(255, 107, 107, 0.1);
+    color: var(--accent);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text3);
+    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  .empty-state p:first-child {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 520px) {
+    .form-row { grid-template-columns: 1fr; }
+    .form-row.three { grid-template-columns: 1fr 1fr; }
+    .pace-grid { grid-template-columns: 1fr; }
+    .today-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>커미션 <span>마감</span> 시뮬레이터</h1>
+  <p>// deadline manager</p>
+</header>
+
+<div class="main">
+
+  <!-- ADD FORM -->
+  <div class="add-card">
+    <h2>+ 새 커미션 추가</h2>
+    <div class="form-row">
+      <div class="field">
+        <label>커미션/프로젝트 이름</label>
+        <input type="text" id="inp-name" placeholder="예: OO님 커미션">
+      </div>
+      <div class="field">
+        <label>마감 날짜</label>
+        <input type="date" id="inp-date">
+      </div>
+    </div>
+    <div class="form-row three">
+      <div class="field" style="grid-column: span 2;">
+        <label>총 작업량</label>
+        <input type="number" id="inp-total" placeholder="0" min="1">
+      </div>
+      <div class="field">
+        <label>단위</label>
+        <div class="unit-toggle">
+          <button class="unit-btn active" id="btn-comic" onclick="setUnit('컷')">컷 (만화)</button>
+          <button class="unit-btn" id="btn-illust" onclick="setUnit('장')">장 (일러)  </button>
+        </div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addProject()">커미션 추가하기</button>
+  </div>
+
+  <!-- PROJECTS -->
+  <div id="projects-container">
+    <div class="empty-state">
+      <p>🎨</p>
+      <p>아직 커미션이 없어요.<br>위에서 추가해보세요!</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let selectedUnit = '컷';
+  let projects = JSON.parse(localStorage.getItem('commission_projects') || '[]');
+
+  function setUnit(unit) {
+    selectedUnit = unit;
+    document.getElementById('btn-comic').classList.toggle('active', unit === '컷');
+    document.getElementById('btn-illust').classList.toggle('active', unit === '장');
+  }
+
+  function save() {
+    localStorage.setItem('commission_projects', JSON.stringify(projects));
+  }
+
+  function getDDay(dateStr) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadline = new Date(dateStr);
+    deadline.setHours(0, 0, 0, 0);
+    return Math.ceil((deadline - today) / 86400000);
+  }
+
+  function getDoneToday(project) {
+    const today = new Date().toISOString().slice(0, 10);
+    return project.logs
+      .filter(l => l.date === today && !l.rest)
+      .reduce((s, l) => s + l.amount, 0);
+  }
+
+  function getTotalDone(project) {
+    return project.logs
+      .filter(l => !l.rest)
+      .reduce((s, l) => s + l.amount, 0);
+  }
+
+  function addProject() {
+    const name = document.getElementById('inp-name').value.trim();
+    const date = document.getElementById('inp-date').value;
+    const total = parseInt(document.getElementById('inp-total').value);
+
+    if (!name) return alert('프로젝트 이름을 입력해주세요.');
+    if (!date) return alert('마감 날짜를 입력해주세요.');
+    if (!total || total < 1) return alert('총 작업량을 입력해주세요.');
+
+    const dday = getDDay(date);
+    if (dday < 0) return alert('마감일이 이미 지났어요!');
+
+    projects.unshift({
+      id: Date.now(),
+      name,
+      date,
+      total,
+      unit: selectedUnit,
+      type: selectedUnit === '컷' ? 'comic' : 'illust',
+      logs: []
+    });
+    save();
+    renderProjects();
+
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-date').value = '';
+    document.getElementById('inp-total').value = '';
+  }
+
+  function deleteProject(id) {
+    if (!confirm('이 커미션을 삭제할까요?')) return;
+    projects = projects.filter(p => p.id !== id);
+    save();
+    renderProjects();
+  }
+
+  function addWork(id) {
+    const val = parseInt(document.getElementById(`work-input-${id}`).value);
+    if (!val || val < 1) return alert('작업량을 입력해주세요.');
+    const proj = projects.find(p => p.id === id);
+    const today = new Date().toISOString().slice(0, 10);
+    proj.logs.unshift({ date: today, amount: val, rest: false });
+    document.getElementById(`work-input-${id}`).value = '';
+    save();
+    renderProject(proj);
+  }
+
+  function addRest(id) {
+    const proj = projects.find(p => p.id === id);
+    const today = new Date().toISOString().slice(0, 10);
+    // Check if already rested today
+    if (proj.logs.some(l => l.date === today && l.rest)) {
+      alert('오늘은 이미 휴식으로 기록했어요!');
+      return;
+    }
+    proj.logs.unshift({ date: today, amount: 0, rest: true });
+    save();
+    renderProject(proj);
+  }
+
+  function toggleCard(id) {
+    const card = document.getElementById(`card-${id}`);
+    card.classList.toggle('open');
+  }
+
+  function renderProject(proj) {
+    const dday = getDDay(proj.date);
+    const done = getTotalDone(proj);
+    const remaining = Math.max(0, proj.total - done);
+    const pct = Math.min(100, Math.round((done / proj.total) * 100));
+
+    // Pace calculations
+    const effectiveDays = Math.max(1, dday);
+    const minPace = Math.ceil(remaining / effectiveDays);
+    // 안심: 10% 버퍼를 추가 (여유일을 감안)
+    const comfortPace = Math.ceil(remaining / Math.max(1, effectiveDays * 0.85));
+    // 여유: 70% 기간 내에 완료 목표
+    const easyPace = Math.ceil(remaining / Math.max(1, effectiveDays * 0.7));
+
+    const unit = proj.unit;
+
+    let ddayText, ddayClass;
+    if (dday < 0) { ddayText = 'D+' + Math.abs(dday); ddayClass = 'urgent'; }
+    else if (dday === 0) { ddayText = 'D-DAY'; ddayClass = 'urgent'; }
+    else if (dday <= 3) { ddayText = 'D-' + dday; ddayClass = 'urgent'; }
+    else if (dday <= 7) { ddayText = 'D-' + dday; ddayClass = 'warning'; }
+    else { ddayText = 'D-' + dday; ddayClass = 'ok'; }
+
+    const logsHtml = proj.logs.length === 0
+      ? `<div class="log-empty">// 아직 기록이 없어요</div>`
+      : proj.logs.map(l => {
+          if (l.rest) {
+            return `<div class="log-item rest-log">
+              <span class="log-date">${l.date}</span>
+              <span class="log-amount">💤 휴식</span>
+              <span class="log-note">오늘은 쉬었어요</span>
+            </div>`;
+          }
+          return `<div class="log-item">
+            <span class="log-date">${l.date}</span>
+            <span class="log-amount">+${l.amount}${unit}</span>
+            <span class="log-note">작업 완료</span>
+          </div>`;
+        }).join('');
+
+    const existingCard = document.getElementById(`card-${proj.id}`);
+    const isOpen = existingCard && existingCard.classList.contains('open');
+
+    const html = `
+    <div class="project-card ${isOpen ? 'open' : ''}" id="card-${proj.id}">
+      <div class="project-header" onclick="toggleCard(${proj.id})">
+        <div class="project-title-row">
+          <span class="project-name">${proj.name}</span>
+          <span class="tag ${proj.type}">${unit === '컷' ? '만화' : '일러스트'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="dday-badge ${ddayClass}">${ddayText}</div>
+          <button class="delete-btn" onclick="event.stopPropagation();deleteProject(${proj.id})">×</button>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="project-body">
+
+        <!-- GUIDE BANNER -->
+        <div class="guide-banner">
+          안심 구간에 진입하려면 오늘 <strong>${comfortPace}${unit}</strong> 이상 작업해야 해요!
+        </div>
+
+        <!-- PACE -->
+        <div class="pace-grid">
+          <div class="pace-card">
+            <div class="pace-label">최소</div>
+            <div class="pace-value">${minPace}</div>
+            <div class="pace-unit">${unit} / 일 · 매일 작업 기준</div>
+          </div>
+          <div class="pace-card highlight">
+            <div class="pace-label">안심 ✦</div>
+            <div class="pace-value">${comfortPace}</div>
+            <div class="pace-unit">${unit} / 일 · 15% 여유 확보</div>
+          </div>
+          <div class="pace-card">
+            <div class="pace-label">여유</div>
+            <div class="pace-value">${easyPace}</div>
+            <div class="pace-unit">${unit} / 일 · 30% 여유 확보</div>
+          </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-section">
+          <div class="progress-label-row">
+            <span class="progress-label">전체 완료율</span>
+            <span class="progress-pct">${pct}%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: ${pct}%"></div>
+          </div>
+          <div class="progress-sub">${done} / ${proj.total} ${unit} 완료 · 남은 작업량 ${remaining}${unit}</div>
+        </div>
+
+        <!-- TODAY INPUT -->
+        <div class="today-section">
+          <h3>오늘 작업량 입력</h3>
+          <div class="today-row">
+            <div class="today-input-wrap">
+              <input type="number" id="work-input-${proj.id}" placeholder="0" min="1"
+                onkeydown="if(event.key==='Enter')addWork(${proj.id})">
+              <span class="today-unit">${unit}</span>
+            </div>
+            <button class="today-add-btn" onclick="addWork(${proj.id})">기록하기</button>
+            <button class="rest-btn" onclick="addRest(${proj.id})">💤 휴식했어요</button>
+          </div>
+        </div>
+
+        <!-- LOGS -->
+        <div class="log-section">
+          <h3>작업 로그</h3>
+          <div class="log-list">${logsHtml}</div>
+        </div>
+
+      </div>
+    </div>`;
+
+    if (existingCard) {
+      existingCard.outerHTML = html;
+    } else {
+      return html;
+    }
+  }
+
+  function renderProjects() {
+    const container = document.getElementById('projects-container');
+    if (projects.length === 0) {
+      container.innerHTML = `<div class="empty-state">
+        <p>🎨</p>
+        <p>아직 커미션이 없어요.<br>위에서 추가해보세요!</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = projects.map(p => renderProject(p) || '').join('');
+  }
+
+  // Initial render
+  renderProjects();
+</script>
+</body>
+</html>
