@@ -3,7 +3,7 @@
 커미션 작가를 위한 마감 관리 웹앱입니다.
 마감일까지 하루에 얼마나 작업해야 하는지 계산해주고, 작업 로그를 기록할 수 있습니다.
 
-🔗 **[→ 바로 사용하기](https://[본인GitHub아이디].github.io/[레포이름])**
+🔗 **[→ 바로 사용하기](https://gaeun1961.github.io/commision-deadline-manager/)**
 
 ---
 
