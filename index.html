@@ -31,7 +31,6 @@
     padding: 24px 16px 80px;
   }
 
-  /* Grain overlay */
   body::before {
     content: '';
     position: fixed;
@@ -50,22 +49,9 @@
     gap: 12px;
   }
 
-  header h1 {
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    color: var(--text);
-  }
-
-  header h1 span {
-    color: var(--accent);
-  }
-
-  header p {
-    font-size: 12px;
-    color: var(--text3);
-    font-family: 'Space Mono', monospace;
-  }
+  header h1 { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+  header h1 span { color: var(--accent); }
+  header p { font-size: 12px; color: var(--text3); font-family: 'Space Mono', monospace; }
 
   .main {
     max-width: 780px;
@@ -75,7 +61,6 @@
     gap: 16px;
   }
 
-  /* ADD PROJECT CARD */
   .add-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -92,29 +77,10 @@
     margin-bottom: 20px;
   }
 
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .form-row.three {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .field label {
-    font-size: 11px;
-    color: var(--text2);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 11px; color: var(--text2); font-weight: 500; letter-spacing: 0.5px; }
 
   .field input[type="text"],
   .field input[type="number"],
@@ -131,62 +97,37 @@
     width: 100%;
   }
 
-  .field input:focus {
-    border-color: var(--accent);
-  }
+  .field input:focus { border-color: var(--accent); }
+  .field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
 
-  .field input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.5);
-    cursor: pointer;
-  }
-
-  .unit-toggle {
-    display: flex;
-    gap: 8px;
-  }
+  .unit-toggle { display: flex; gap: 8px; }
 
   .unit-btn {
-    flex: 1;
-    padding: 10px;
+    flex: 1; padding: 10px;
     border: 1px solid var(--border);
     background: var(--surface2);
     color: var(--text2);
     border-radius: 8px;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 13px; font-weight: 600;
     font-family: 'Noto Sans KR', sans-serif;
     transition: all var(--transition);
     text-align: center;
   }
 
-  .unit-btn.active {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
+  .unit-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
   .add-btn {
-    width: 100%;
-    margin-top: 4px;
-    padding: 12px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
+    width: 100%; margin-top: 4px; padding: 12px;
+    background: var(--accent); color: white;
+    border: none; border-radius: 8px;
     font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all var(--transition);
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all var(--transition);
   }
 
-  .add-btn:hover {
-    background: #ff4f4f;
-    transform: translateY(-1px);
-  }
+  .add-btn:hover { background: #ff4f4f; transform: translateY(-1px); }
 
-  /* PROJECT CARD */
   .project-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -197,388 +138,178 @@
 
   @keyframes slideIn {
     from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   .project-header {
     padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    user-select: none;
+    cursor: pointer; user-select: none;
   }
 
-  .project-header:hover {
-    background: var(--surface2);
-  }
+  .project-header:hover { background: var(--surface2); }
 
-  .project-title-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .project-name {
-    font-size: 15px;
-    font-weight: 700;
-  }
+  .project-title-row { display: flex; align-items: center; gap: 12px; }
+  .project-name { font-size: 15px; font-weight: 700; }
 
   .tag {
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-weight: 600;
+    font-size: 10px; padding: 3px 8px;
+    border-radius: 20px; font-weight: 600;
     font-family: 'Space Mono', monospace;
   }
 
-  .tag.comic { background: rgba(107, 203, 119, 0.2); color: var(--accent3); }
-  .tag.illust { background: rgba(255, 217, 61, 0.2); color: var(--accent2); }
+  .tag.comic   { background: rgba(107,203,119,0.2); color: var(--accent3); }
+  .tag.illust  { background: rgba(255,217,61,0.2);  color: var(--accent2); }
 
   .dday-badge {
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 6px;
   }
 
-  .dday-badge.urgent { background: rgba(255, 107, 107, 0.2); color: var(--accent); }
-  .dday-badge.ok { background: rgba(107, 203, 119, 0.15); color: var(--accent3); }
-  .dday-badge.warning { background: rgba(255, 217, 61, 0.15); color: var(--accent2); }
+  .dday-badge.urgent  { background: rgba(255,107,107,0.2); color: var(--accent); }
+  .dday-badge.ok      { background: rgba(107,203,119,0.15); color: var(--accent3); }
+  .dday-badge.warning { background: rgba(255,217,61,0.15);  color: var(--accent2); }
 
-  .chevron {
-    width: 16px;
-    height: 16px;
-    color: var(--text3);
-    transition: transform 0.3s ease;
-  }
+  .chevron { width: 16px; height: 16px; color: var(--text3); transition: transform 0.3s ease; }
+  .project-card.open .chevron { transform: rotate(180deg); }
 
-  .project-card.open .chevron {
-    transform: rotate(180deg);
-  }
+  .project-body { display: none; padding: 24px; flex-direction: column; gap: 24px; }
+  .project-card.open .project-body { display: flex; }
 
-  .project-body {
-    display: none;
-    padding: 24px;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .project-card.open .project-body {
-    display: flex;
-  }
-
-  /* GUIDE BANNER */
   .guide-banner {
-    background: rgba(255, 217, 61, 0.08);
-    border: 1px solid rgba(255, 217, 61, 0.2);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: var(--accent2);
-    text-align: center;
-    font-weight: 500;
+    background: rgba(255,217,61,0.08);
+    border: 1px solid rgba(255,217,61,0.2);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 13px; color: var(--accent2);
+    text-align: center; font-weight: 500;
   }
 
-  /* PACE GRID */
-  .pace-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
+  .pace-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
 
   .pace-card {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    position: relative;
+    border-radius: 10px; padding: 16px; text-align: center;
   }
 
-  .pace-card.highlight {
-    border-color: var(--accent3);
-    background: rgba(107, 203, 119, 0.05);
-  }
+  .pace-card.highlight { border-color: var(--accent3); background: rgba(107,203,119,0.05); }
 
   .pace-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--text3);
-    text-transform: uppercase;
-    margin-bottom: 8px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1px; color: var(--text3);
+    text-transform: uppercase; margin-bottom: 8px;
   }
 
-  .pace-card.highlight .pace-label {
-    color: var(--accent3);
-  }
+  .pace-card.highlight .pace-label { color: var(--accent3); }
 
   .pace-value {
-    font-size: 28px;
-    font-weight: 900;
+    font-size: 28px; font-weight: 900;
     font-family: 'Space Mono', monospace;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 4px;
+    line-height: 1; margin-bottom: 4px;
   }
 
-  .pace-unit {
-    font-size: 11px;
-    color: var(--text3);
-  }
+  .pace-unit { font-size: 11px; color: var(--text3); }
 
-  /* PROGRESS */
-  .progress-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .progress-label-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-  }
-
-  .progress-label {
-    font-size: 11px;
-    color: var(--text2);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .progress-pct {
-    font-family: 'Space Mono', monospace;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-  }
+  .progress-section { display: flex; flex-direction: column; gap: 10px; }
+  .progress-label-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .progress-label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+  .progress-pct { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; }
 
   .progress-bar-track {
-    height: 10px;
-    background: var(--surface2);
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--border);
+    height: 10px; background: var(--surface2);
+    border-radius: 20px; overflow: hidden; border: 1px solid var(--border);
   }
 
   .progress-bar-fill {
-    height: 100%;
-    border-radius: 20px;
+    height: 100%; border-radius: 20px;
     background: linear-gradient(90deg, var(--accent3), #4dc957);
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
   }
 
-  .progress-bar-fill::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: white;
-    opacity: 0.4;
-    border-radius: 2px;
+  .progress-sub { font-size: 12px; color: var(--text3); font-family: 'Space Mono', monospace; }
+
+  .section-title {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text2); margin-bottom: 12px;
   }
 
-  .progress-sub {
-    font-size: 12px;
-    color: var(--text3);
-    font-family: 'Space Mono', monospace;
-  }
-
-  /* TODAY INPUT */
-  .today-section h3 {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text2);
-    margin-bottom: 12px;
-  }
-
-  .today-row {
-    display: flex;
-    gap: 8px;
-    align-items: stretch;
-  }
-
-  .today-input-wrap {
-    flex: 1;
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
+  .today-row { display: flex; gap: 8px; align-items: stretch; }
+  .today-input-wrap { flex: 1; position: relative; display: flex; align-items: center; }
 
   .today-input-wrap input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 40px 10px 14px;
-    color: var(--text);
+    width: 100%; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 40px 10px 14px; color: var(--text);
     font-family: 'Space Mono', monospace;
-    font-size: 16px;
-    font-weight: 700;
-    outline: none;
-    transition: border-color var(--transition);
+    font-size: 16px; font-weight: 700;
+    outline: none; transition: border-color var(--transition);
   }
 
-  .today-input-wrap input:focus {
-    border-color: var(--accent);
-  }
-
-  .today-unit {
-    position: absolute;
-    right: 12px;
-    font-size: 12px;
-    color: var(--text3);
-  }
+  .today-input-wrap input:focus { border-color: var(--accent); }
+  .today-unit { position: absolute; right: 12px; font-size: 12px; color: var(--text3); }
 
   .today-add-btn {
-    padding: 10px 16px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
+    padding: 10px 16px; background: var(--accent); color: white;
+    border: none; border-radius: 8px;
     font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all var(--transition);
-    white-space: nowrap;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all var(--transition); white-space: nowrap;
   }
 
   .today-add-btn:hover { background: #ff4f4f; }
 
   .rest-btn {
-    padding: 10px 16px;
-    background: transparent;
-    color: var(--text2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 10px 16px; background: transparent; color: var(--text2);
+    border: 1px solid var(--border); border-radius: 8px;
     font-family: 'Noto Sans KR', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition);
-    white-space: nowrap;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all var(--transition); white-space: nowrap;
   }
 
-  .rest-btn:hover {
-    border-color: var(--accent2);
-    color: var(--accent2);
-  }
+  .rest-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 
-  /* LOG */
-  .log-section h3 {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text2);
-    margin-bottom: 12px;
-  }
-
-  .log-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
+  .log-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
   .log-list::-webkit-scrollbar { width: 4px; }
-  .log-list::-webkit-scrollbar-track { background: transparent; }
   .log-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   .log-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; align-items: center; gap: 12px;
     padding: 10px 14px;
-    background: var(--surface2);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    font-size: 13px;
+    background: var(--surface2); border-radius: 8px; border: 1px solid var(--border);
   }
 
-  .log-item.rest-log {
-    border-color: rgba(255, 217, 61, 0.2);
-  }
+  .log-item.rest-log { border-color: rgba(255,217,61,0.2); }
 
-  .log-date {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
-    min-width: 80px;
-  }
+  .log-date   { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text3); min-width: 80px; }
+  .log-amount { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--accent3); min-width: 60px; }
+  .log-item.rest-log .log-amount { color: var(--accent2); }
+  .log-note   { color: var(--text2); font-size: 12px; }
+  .log-empty  { font-size: 12px; color: var(--text3); text-align: center; padding: 20px; font-family: 'Space Mono', monospace; }
 
-  .log-amount {
-    font-family: 'Space Mono', monospace;
-    font-weight: 700;
-    color: var(--accent3);
-    min-width: 60px;
-  }
+  .header-right { display: flex; align-items: center; gap: 8px; }
 
-  .log-item.rest-log .log-amount {
-    color: var(--accent2);
-  }
-
-  .log-note {
-    color: var(--text2);
-    font-size: 12px;
-  }
-
-  .log-empty {
-    font-size: 12px;
-    color: var(--text3);
-    text-align: center;
-    padding: 20px;
-    font-family: 'Space Mono', monospace;
-  }
-
-  /* DELETE */
   .delete-btn {
-    background: none;
-    border: none;
-    color: var(--text3);
-    cursor: pointer;
-    font-size: 18px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all var(--transition);
-    line-height: 1;
+    background: none; border: none; color: var(--text3);
+    cursor: pointer; font-size: 18px;
+    padding: 4px 8px; border-radius: 6px;
+    transition: all var(--transition); line-height: 1;
   }
 
-  .delete-btn:hover {
-    background: rgba(255, 107, 107, 0.1);
-    color: var(--accent);
-  }
+  .delete-btn:hover { background: rgba(255,107,107,0.1); color: var(--accent); }
 
   .empty-state {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--text3);
-    font-size: 13px;
+    text-align: center; padding: 48px 24px;
+    color: var(--text3); font-size: 13px;
     font-family: 'Space Mono', monospace;
     background: var(--surface);
     border: 1px dashed var(--border);
     border-radius: var(--radius);
   }
 
-  .empty-state p:first-child {
-    font-size: 32px;
-    margin-bottom: 12px;
-  }
+  .empty-state p:first-child { font-size: 32px; margin-bottom: 12px; }
 
   @media (max-width: 520px) {
     .form-row { grid-template-columns: 1fr; }
@@ -596,14 +327,12 @@
 </header>
 
 <div class="main">
-
-  <!-- ADD FORM -->
   <div class="add-card">
     <h2>+ 새 커미션 추가</h2>
     <div class="form-row">
       <div class="field">
         <label>커미션/프로젝트 이름</label>
-        <input type="text" id="inp-name" placeholder="예: OO님 커미션">
+        <input type="text" id="inp-name" placeholder="예: OO님 커미션" maxlength="50">
       </div>
       <div class="field">
         <label>마감 날짜</label>
@@ -613,32 +342,51 @@
     <div class="form-row three">
       <div class="field" style="grid-column: span 2;">
         <label>총 작업량</label>
-        <input type="number" id="inp-total" placeholder="0" min="1">
+        <input type="number" id="inp-total" placeholder="0" min="1" max="9999">
       </div>
       <div class="field">
         <label>단위</label>
         <div class="unit-toggle">
           <button class="unit-btn active" id="btn-comic" onclick="setUnit('컷')">컷 (만화)</button>
-          <button class="unit-btn" id="btn-illust" onclick="setUnit('장')">장 (일러)  </button>
+          <button class="unit-btn" id="btn-illust" onclick="setUnit('장')">장 (일러)</button>
         </div>
       </div>
     </div>
     <button class="add-btn" onclick="addProject()">커미션 추가하기</button>
   </div>
 
-  <!-- PROJECTS -->
-  <div id="projects-container">
-    <div class="empty-state">
-      <p>🎨</p>
-      <p>아직 커미션이 없어요.<br>위에서 추가해보세요!</p>
-    </div>
-  </div>
-
+  <div id="projects-container"></div>
 </div>
 
 <script>
+  const today = () => new Date().toISOString().slice(0, 10);
+
+  function getDDay(dateStr) {
+    const now = new Date(); now.setHours(0,0,0,0);
+    const end = new Date(dateStr); end.setHours(0,0,0,0);
+    return Math.ceil((end - now) / 86400000);
+  }
+
+  function save() {
+    try {
+      localStorage.setItem('commission_projects', JSON.stringify(projects));
+    } catch {
+      alert('저장 공간이 부족합니다. 오래된 커미션을 삭제해보세요.');
+    }
+  }
+
+  // XSS 방지 핵심 헬퍼 - 사용자 입력값은 무조건 이걸로 처리
+  function el(tag, props = {}, text = '') {
+    const e = document.createElement(tag);
+    Object.assign(e, props);
+    if (text) e.textContent = text;
+    return e;
+  }
+
   let selectedUnit = '컷';
   let projects = JSON.parse(localStorage.getItem('commission_projects') || '[]');
+
+  const getTotalDone = proj => proj.logs.filter(l => !l.rest).reduce((s, l) => s + l.amount, 0);
 
   function setUnit(unit) {
     selectedUnit = unit;
@@ -646,236 +394,175 @@
     document.getElementById('btn-illust').classList.toggle('active', unit === '장');
   }
 
-  function save() {
-    localStorage.setItem('commission_projects', JSON.stringify(projects));
-  }
-
-  function getDDay(dateStr) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const deadline = new Date(dateStr);
-    deadline.setHours(0, 0, 0, 0);
-    return Math.ceil((deadline - today) / 86400000);
-  }
-
-  function getDoneToday(project) {
-    const today = new Date().toISOString().slice(0, 10);
-    return project.logs
-      .filter(l => l.date === today && !l.rest)
-      .reduce((s, l) => s + l.amount, 0);
-  }
-
-  function getTotalDone(project) {
-    return project.logs
-      .filter(l => !l.rest)
-      .reduce((s, l) => s + l.amount, 0);
-  }
-
   function addProject() {
-    const name = document.getElementById('inp-name').value.trim();
-    const date = document.getElementById('inp-date').value;
+    const name  = document.getElementById('inp-name').value.trim().slice(0, 50);
+    const date  = document.getElementById('inp-date').value;
     const total = parseInt(document.getElementById('inp-total').value);
 
-    if (!name) return alert('프로젝트 이름을 입력해주세요.');
-    if (!date) return alert('마감 날짜를 입력해주세요.');
+    if (!name)               return alert('프로젝트 이름을 입력해주세요.');
+    if (!date)               return alert('마감 날짜를 입력해주세요.');
     if (!total || total < 1) return alert('총 작업량을 입력해주세요.');
-
-    const dday = getDDay(date);
-    if (dday < 0) return alert('마감일이 이미 지났어요!');
+    if (getDDay(date) < 0)   return alert('마감일이 이미 지났어요!');
 
     projects.unshift({
-      id: Date.now(),
-      name,
-      date,
-      total,
+      id: Date.now(), name, date, total,
       unit: selectedUnit,
       type: selectedUnit === '컷' ? 'comic' : 'illust',
       logs: []
     });
-    save();
-    renderProjects();
-
-    document.getElementById('inp-name').value = '';
-    document.getElementById('inp-date').value = '';
-    document.getElementById('inp-total').value = '';
+    save(); renderProjects();
+    ['inp-name','inp-date','inp-total'].forEach(id => document.getElementById(id).value = '');
   }
 
   function deleteProject(id) {
     if (!confirm('이 커미션을 삭제할까요?')) return;
     projects = projects.filter(p => p.id !== id);
-    save();
-    renderProjects();
+    save(); renderProjects();
   }
 
   function addWork(id) {
-    const val = parseInt(document.getElementById(`work-input-${id}`).value);
+    const input = document.getElementById(`work-input-${id}`);
+    const val   = parseInt(input.value);
     if (!val || val < 1) return alert('작업량을 입력해주세요.');
     const proj = projects.find(p => p.id === id);
-    const today = new Date().toISOString().slice(0, 10);
-    proj.logs.unshift({ date: today, amount: val, rest: false });
-    document.getElementById(`work-input-${id}`).value = '';
-    save();
-    renderProject(proj);
+    proj.logs.unshift({ date: today(), amount: val, rest: false });
+    input.value = '';
+    save(); renderProject(proj);
   }
 
   function addRest(id) {
     const proj = projects.find(p => p.id === id);
-    const today = new Date().toISOString().slice(0, 10);
-    // Check if already rested today
-    if (proj.logs.some(l => l.date === today && l.rest)) {
-      alert('오늘은 이미 휴식으로 기록했어요!');
-      return;
-    }
-    proj.logs.unshift({ date: today, amount: 0, rest: true });
-    save();
-    renderProject(proj);
+    if (proj.logs.some(l => l.date === today() && l.rest))
+      return alert('오늘은 이미 휴식으로 기록했어요!');
+    proj.logs.unshift({ date: today(), amount: 0, rest: true });
+    save(); renderProject(proj);
   }
 
   function toggleCard(id) {
-    const card = document.getElementById(`card-${id}`);
-    card.classList.toggle('open');
+    document.getElementById(`card-${id}`).classList.toggle('open');
   }
 
   function renderProject(proj) {
-    const dday = getDDay(proj.date);
-    const done = getTotalDone(proj);
+    const dday      = getDDay(proj.date);
+    const done      = getTotalDone(proj);
     const remaining = Math.max(0, proj.total - done);
-    const pct = Math.min(100, Math.round((done / proj.total) * 100));
+    const pct       = Math.min(100, Math.round(done / proj.total * 100));
+    const days      = Math.max(1, dday);
+    const { unit }  = proj;
 
-    // Pace calculations
-    const effectiveDays = Math.max(1, dday);
-    const minPace = Math.ceil(remaining / effectiveDays);
-    // 안심: 10% 버퍼를 추가 (여유일을 감안)
-    const comfortPace = Math.ceil(remaining / Math.max(1, effectiveDays * 0.85));
-    // 여유: 70% 기간 내에 완료 목표
-    const easyPace = Math.ceil(remaining / Math.max(1, effectiveDays * 0.7));
+    const minPace     = Math.ceil(remaining / days);
+    const comfortPace = Math.ceil(remaining / Math.max(1, days * 0.85));
+    const easyPace    = Math.ceil(remaining / Math.max(1, days * 0.7));
 
-    const unit = proj.unit;
+    const ddayText  = dday < 0 ? `D+${Math.abs(dday)}` : dday === 0 ? 'D-DAY' : `D-${dday}`;
+    const ddayClass = dday <= 3 ? 'urgent' : dday <= 7 ? 'warning' : 'ok';
 
-    let ddayText, ddayClass;
-    if (dday < 0) { ddayText = 'D+' + Math.abs(dday); ddayClass = 'urgent'; }
-    else if (dday === 0) { ddayText = 'D-DAY'; ddayClass = 'urgent'; }
-    else if (dday <= 3) { ddayText = 'D-' + dday; ddayClass = 'urgent'; }
-    else if (dday <= 7) { ddayText = 'D-' + dday; ddayClass = 'warning'; }
-    else { ddayText = 'D-' + dday; ddayClass = 'ok'; }
+    const existing = document.getElementById(`card-${proj.id}`);
+    const isOpen   = existing?.classList.contains('open');
 
-    const logsHtml = proj.logs.length === 0
-      ? `<div class="log-empty">// 아직 기록이 없어요</div>`
-      : proj.logs.map(l => {
-          if (l.rest) {
-            return `<div class="log-item rest-log">
-              <span class="log-date">${l.date}</span>
-              <span class="log-amount">💤 휴식</span>
-              <span class="log-note">오늘은 쉬었어요</span>
-            </div>`;
-          }
-          return `<div class="log-item">
-            <span class="log-date">${l.date}</span>
-            <span class="log-amount">+${l.amount}${unit}</span>
-            <span class="log-note">작업 완료</span>
-          </div>`;
-        }).join('');
+    const card = el('div', { className: `project-card${isOpen ? ' open' : ''}`, id: `card-${proj.id}` });
 
-    const existingCard = document.getElementById(`card-${proj.id}`);
-    const isOpen = existingCard && existingCard.classList.contains('open');
+    const header = card.appendChild(el('div', { className: 'project-header' }));
+    header.onclick = () => toggleCard(proj.id);
 
-    const html = `
-    <div class="project-card ${isOpen ? 'open' : ''}" id="card-${proj.id}">
-      <div class="project-header" onclick="toggleCard(${proj.id})">
-        <div class="project-title-row">
-          <span class="project-name">${proj.name}</span>
-          <span class="tag ${proj.type}">${unit === '컷' ? '만화' : '일러스트'}</span>
+    const titleRow = header.appendChild(el('div', { className: 'project-title-row' }));
+    titleRow.appendChild(el('span', { className: 'project-name' }, proj.name));
+    titleRow.appendChild(el('span', { className: `tag ${proj.type}` }, unit === '컷' ? '만화' : '일러스트'));
+
+    const right = header.appendChild(el('div', { className: 'header-right' }));
+    right.appendChild(el('div', { className: `dday-badge ${ddayClass}` }, ddayText));
+
+    const delBtn = right.appendChild(el('button', { className: 'delete-btn' }, '×'));
+    delBtn.onclick = e => { e.stopPropagation(); deleteProject(proj.id); };
+
+    right.insertAdjacentHTML('beforeend', `
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>`);
+
+    const body = card.appendChild(el('div', { className: 'project-body' }));
+
+    body.insertAdjacentHTML('beforeend', `
+      <div class="guide-banner">
+        안심 구간에 진입하려면 오늘 <strong>${comfortPace}${unit}</strong> 이상 작업해야 해요!
+      </div>
+      <div class="pace-grid">
+        <div class="pace-card">
+          <div class="pace-label">최소</div>
+          <div class="pace-value">${minPace}</div>
+          <div class="pace-unit">${unit} / 일 · 매일 작업 기준</div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="dday-badge ${ddayClass}">${ddayText}</div>
-          <button class="delete-btn" onclick="event.stopPropagation();deleteProject(${proj.id})">×</button>
-          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+        <div class="pace-card highlight">
+          <div class="pace-label">안심 ✦</div>
+          <div class="pace-value">${comfortPace}</div>
+          <div class="pace-unit">${unit} / 일 · 15% 여유 확보</div>
+        </div>
+        <div class="pace-card">
+          <div class="pace-label">여유</div>
+          <div class="pace-value">${easyPace}</div>
+          <div class="pace-unit">${unit} / 일 · 30% 여유 확보</div>
         </div>
       </div>
-
-      <div class="project-body">
-
-        <!-- GUIDE BANNER -->
-        <div class="guide-banner">
-          안심 구간에 진입하려면 오늘 <strong>${comfortPace}${unit}</strong> 이상 작업해야 해요!
+      <div class="progress-section">
+        <div class="progress-label-row">
+          <span class="progress-label">전체 완료율</span>
+          <span class="progress-pct">${pct}%</span>
         </div>
-
-        <!-- PACE -->
-        <div class="pace-grid">
-          <div class="pace-card">
-            <div class="pace-label">최소</div>
-            <div class="pace-value">${minPace}</div>
-            <div class="pace-unit">${unit} / 일 · 매일 작업 기준</div>
-          </div>
-          <div class="pace-card highlight">
-            <div class="pace-label">안심 ✦</div>
-            <div class="pace-value">${comfortPace}</div>
-            <div class="pace-unit">${unit} / 일 · 15% 여유 확보</div>
-          </div>
-          <div class="pace-card">
-            <div class="pace-label">여유</div>
-            <div class="pace-value">${easyPace}</div>
-            <div class="pace-unit">${unit} / 일 · 30% 여유 확보</div>
-          </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" style="width:${pct}%"></div>
         </div>
-
-        <!-- PROGRESS -->
-        <div class="progress-section">
-          <div class="progress-label-row">
-            <span class="progress-label">전체 완료율</span>
-            <span class="progress-pct">${pct}%</span>
-          </div>
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" style="width: ${pct}%"></div>
-          </div>
-          <div class="progress-sub">${done} / ${proj.total} ${unit} 완료 · 남은 작업량 ${remaining}${unit}</div>
-        </div>
-
-        <!-- TODAY INPUT -->
-        <div class="today-section">
-          <h3>오늘 작업량 입력</h3>
-          <div class="today-row">
-            <div class="today-input-wrap">
-              <input type="number" id="work-input-${proj.id}" placeholder="0" min="1"
-                onkeydown="if(event.key==='Enter')addWork(${proj.id})">
-              <span class="today-unit">${unit}</span>
-            </div>
-            <button class="today-add-btn" onclick="addWork(${proj.id})">기록하기</button>
-            <button class="rest-btn" onclick="addRest(${proj.id})">💤 휴식했어요</button>
-          </div>
-        </div>
-
-        <!-- LOGS -->
-        <div class="log-section">
-          <h3>작업 로그</h3>
-          <div class="log-list">${logsHtml}</div>
-        </div>
-
+        <div class="progress-sub">${done} / ${proj.total} ${unit} 완료 · 남은 작업량 ${remaining}${unit}</div>
       </div>
-    </div>`;
+      <div>
+        <div class="section-title">오늘 작업량 입력</div>
+        <div class="today-row">
+          <div class="today-input-wrap">
+            <input type="number" id="work-input-${proj.id}" placeholder="0" min="1" max="9999">
+            <span class="today-unit">${unit}</span>
+          </div>
+          <button class="today-add-btn" onclick="addWork(${proj.id})">기록하기</button>
+          <button class="rest-btn" onclick="addRest(${proj.id})">💤 휴식했어요</button>
+        </div>
+      </div>`);
 
-    if (existingCard) {
-      existingCard.outerHTML = html;
+    body.querySelector(`#work-input-${proj.id}`)
+        .addEventListener('keydown', e => { if (e.key === 'Enter') addWork(proj.id); });
+
+    const logSection = body.appendChild(el('div'));
+    logSection.appendChild(el('div', { className: 'section-title' }, '작업 로그'));
+    const logList = logSection.appendChild(el('div', { className: 'log-list' }));
+
+    if (!proj.logs.length) {
+      logList.innerHTML = `<div class="log-empty">// 아직 기록이 없어요</div>`;
     } else {
-      return html;
+      proj.logs.forEach(l => {
+        const item = logList.appendChild(el('div', { className: `log-item${l.rest ? ' rest-log' : ''}` }));
+        item.appendChild(el('span', { className: 'log-date' },   l.date));
+        item.appendChild(el('span', { className: 'log-amount' }, l.rest ? '💤 휴식' : `+${l.amount}${unit}`));
+        item.appendChild(el('span', { className: 'log-note' },   l.rest ? '오늘은 쉬었어요' : '작업 완료'));
+      });
     }
+
+    existing ? existing.replaceWith(card) : null;
+    return card;
   }
 
   function renderProjects() {
     const container = document.getElementById('projects-container');
-    if (projects.length === 0) {
-      container.innerHTML = `<div class="empty-state">
-        <p>🎨</p>
-        <p>아직 커미션이 없어요.<br>위에서 추가해보세요!</p>
-      </div>`;
+    container.innerHTML = '';
+
+    if (!projects.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <p>🎨</p>
+          <p>아직 커미션이 없어요.<br>위에서 추가해보세요!</p>
+        </div>`;
       return;
     }
-    container.innerHTML = projects.map(p => renderProject(p) || '').join('');
+
+    projects.forEach(p => container.appendChild(renderProject(p)));
   }
 
-  // Initial render
   renderProjects();
 </script>
 </body>
