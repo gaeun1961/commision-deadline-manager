@@ -104,7 +104,9 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .sblock{background:var(--s2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .sblock.ok-block{border-color:rgba(107,203,119,.3)}
 
-.shead{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.shead{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);transition:background var(--tr)}
+.shead:hover{background:rgba(255,255,255,.05)}
+.sblock-head-wrap{display:flex;align-items:center;gap:10px}
 .shead-left{display:flex;align-items:center;gap:8px}
 .sname{font-size:13px;font-weight:700}
 .sdday{font-family:'Space Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px}
@@ -155,6 +157,38 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .memo{min-height:56px;resize:vertical}
 .memo::placeholder{color:var(--t3)}
 
+/* 단계 이름 칩 */
+.stage-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.schip{padding:5px 12px;background:var(--bg);border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;transition:all var(--tr);font-family:'Noto Sans KR',sans-serif}
+.schip:hover{border-color:var(--green);color:var(--green)}
+.schip.custom-chip{border-style:dashed}
+
+/* 단계 직접입력 (칩 선택 후 표시) */
+.custom-input-row{display:none;gap:8px;align-items:center;margin-top:8px}
+.custom-input-row.show{display:flex}
+.custom-input-row input[type=text]{flex:1;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:13px}
+
+/* 단계 블록 토글 */
+.sblock-head-wrap{display:flex;align-items:center;justify-content:space-between}
+.stoggle-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;transition:all var(--tr);font-family:'Space Mono',monospace;white-space:nowrap}
+.stoggle-btn:hover{color:var(--t2);background:rgba(255,255,255,.05)}
+.sblock-collapsed .sbody{display:none}
+
+/* 날짜 팝업 */
+.date-popup{display:none;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:8px;flex-direction:column;gap:10px}
+.date-popup.show{display:flex}
+.popup-label{font-size:12px;font-weight:700;color:var(--t2)}
+.popup-date{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none;width:100%}
+.popup-date:focus{border-color:var(--green)}
+.popup-date::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
+.popup-ok{width:100%;padding:8px;background:var(--green);border:none;border-radius:6px;color:#0e0e12;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all var(--tr)}
+.popup-ok:hover{background:#55c462}
+.popup-hint{font-size:10px;color:var(--t3)}
+
+/* 단계 삭제 버튼 */
+.sdel-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;transition:all var(--tr);line-height:1}
+.sdel-btn:hover{color:var(--red);background:rgba(255,107,107,.1)}
+
 /* 빈 상태 */
 .empty{text-align:center;padding:48px 24px;color:var(--t3);font-size:13px;font-family:'Space Mono',monospace;background:var(--surface);border:1px dashed var(--border);border-radius:var(--r)}
 .empty p:first-child{font-size:32px;margin-bottom:12px}
@@ -188,7 +222,6 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
     <div class="type-row">
       <button class="tbtn on" data-type="webtoon" onclick="setType('webtoon')">🎞 웹툰</button>
       <button class="tbtn" data-type="illust" onclick="setType('illust')">🎨 일러스트</button>
-      <button class="tbtn" data-type="custom" onclick="setType('custom')">✏️ 직접 입력</button>
     </div>
 
     <div id="cuts-row" class="row2" style="margin-bottom:14px">
@@ -200,12 +233,13 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 
     <div class="adder">
       <div class="sec">단계 추가</div>
-      <div class="adder-row">
-        <input type="text" id="new-sname" placeholder="단계 이름 (예: 러프, 선화...)" maxlength="20">
+      <div class="stage-chips" id="form-chips"></div>
+      <div class="custom-input-row" id="form-custom-row">
+        <input type="text" id="new-sname" placeholder="단계 이름 직접 입력" maxlength="20">
         <input type="date" id="new-sdate">
-        <button class="btn-g" onclick="addFormStage()">+ 추가</button>
+        <button class="btn-g" onclick="addFormStageCustom()">+ 추가</button>
       </div>
-      <div class="hint">📅 단계 마감일은 선택사항이에요</div>
+      <div class="hint" style="margin-top:6px">📅 단계 마감일은 선택사항 · 칩 클릭으로 단계 추가, 직접 입력도 가능해요</div>
       <div class="preview-list" id="form-stage-preview"></div>
     </div>
 
@@ -278,21 +312,77 @@ var currentType = 'webtoon';
 // ================================================================
 // 폼 - 타입 선택
 // ================================================================
+var STAGE_CHIPS = {
+  webtoon: ['러프','선화','밑색','명암','보정'],
+  illust:  ['러프','선화','밑색','명암','보정'],
+  custom:  ['러프','선화','밑색','명암','보정']
+};
+
 function setType(type) {
   currentType = type;
   document.querySelectorAll('.tbtn').forEach(function(b) {
     b.classList.toggle('on', b.dataset.type === type);
   });
   document.getElementById('cuts-row').style.display = type === 'webtoon' ? '' : 'none';
-  document.getElementById('new-sname').placeholder =
-    type === 'webtoon' ? '예: 러프, 선화, 밑색...' :
-    type === 'illust'  ? '예: 러프, 선화, 채색, 완성...' : '단계 이름';
+  renderFormChips(type);
 }
 
-// ================================================================
-// 폼 - 단계 추가/삭제
-// ================================================================
-function addFormStage() {
+function renderFormChips(type) {
+  var wrap = document.getElementById('form-chips');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  var names = STAGE_CHIPS[type] || STAGE_CHIPS.custom;
+  names.forEach(function(name) {
+    var chip = document.createElement('button');
+    chip.className = 'schip';
+    chip.textContent = name;
+    chip.onclick = function() { showChipDatePicker('form-date-popup', name, function(date) {
+      formStages.push({ name: name, date: date });
+      renderFormPreview();
+    }); };
+    wrap.appendChild(chip);
+  });
+  // 직접 입력 칩
+  var customChip = document.createElement('button');
+  customChip.className = 'schip custom-chip';
+  customChip.textContent = '✏️ 직접 입력';
+  customChip.onclick = function() {
+    var row = document.getElementById('form-custom-row');
+    row.classList.toggle('show');
+    if (row.classList.contains('show')) document.getElementById('new-sname').focus();
+  };
+  wrap.appendChild(customChip);
+  // 날짜 팝업 컨테이너 (없으면 생성)
+  if (!document.getElementById('form-date-popup')) {
+    var pop = document.createElement('div');
+    pop.id = 'form-date-popup';
+    pop.className = 'date-popup';
+    document.getElementById('form-chips').parentNode.appendChild(pop);
+  }
+}
+
+// 칩 클릭 후 날짜 선택 팝업
+function showChipDatePicker(popId, stageName, onConfirm) {
+  var pop = document.getElementById(popId);
+  if (!pop) return;
+  pop.innerHTML = '';
+  pop.classList.add('show');
+  var label = pop.appendChild(document.createElement('span'));
+  label.className = 'popup-label';
+  label.textContent = '「' + stageName + '」 마감일 선택';
+  var dateInp = pop.appendChild(document.createElement('input'));
+  dateInp.type = 'date';
+  dateInp.className = 'popup-date';
+  var okBtn = pop.appendChild(document.createElement('button'));
+  okBtn.className = 'popup-ok';
+  okBtn.textContent = '추가';
+  okBtn.onclick = function() { pop.classList.remove('show'); onConfirm(dateInp.value); };
+  var hint = pop.appendChild(document.createElement('div'));
+  hint.className = 'popup-hint';
+  hint.textContent = '📅 단계 마감일은 선택사항이에요';
+}
+
+function addFormStageCustom() {
   var nameEl = document.getElementById('new-sname');
   var dateEl = document.getElementById('new-sdate');
   var name = nameEl.value.trim().slice(0, 20);
@@ -302,8 +392,15 @@ function addFormStage() {
   dateEl.value = '';
   renderFormPreview();
 }
-document.getElementById('new-sname').addEventListener('keydown', function(ev) {
-  if (ev.key === 'Enter') addFormStage();
+
+// ================================================================
+// 폼 - 단계 추가/삭제
+// ================================================================
+document.addEventListener('DOMContentLoaded', function() {
+  var sname = document.getElementById('new-sname');
+  if (sname) sname.addEventListener('keydown', function(ev) {
+    if (ev.key === 'Enter') addFormStageCustom();
+  });
 });
 
 function removeFormStage(idx) {
@@ -375,6 +472,19 @@ function submitProject() {
 }
 
 // ================================================================
+// 단계 삭제
+// ================================================================
+function deleteStage(projId, stageId) {
+  if (!confirm('이 단계를 삭제할까요?')) return;
+  var proj = getProj(projId); if (!proj) return;
+  var idx = -1;
+  for (var i = 0; i < proj.stages.length; i++) {
+    if (proj.stages[i].id === stageId) { idx = i; break; }
+  }
+  if (idx >= 0) { proj.stages.splice(idx, 1); save(); refreshCard(projId); }
+}
+
+// ================================================================
 // 프로젝트 삭제  ← 핵심: 인덱스 기반 splice
 // ================================================================
 function deleteProject(projId) {
@@ -436,6 +546,13 @@ function addStageInCard(projId) {
   proj.stages.push({ id: uid(), name: name, date: dateEl.value, logs: [], done: false });
   nameEl.value = '';
   if (dateEl) dateEl.value = '';
+  save();
+  refreshCard(projId);
+}
+
+function addStageInCardByName(projId, name, date) {
+  var proj = getProj(projId); if (!proj) return;
+  proj.stages.push({ id: uid(), name: name, date: date || '', logs: [], done: false });
   save();
   refreshCard(projId);
 }
@@ -535,7 +652,7 @@ function buildCard(proj) {
   var titleDiv = head.appendChild(e('div', 'ptitle'));
   titleDiv.appendChild(e('span', 'pname', proj.name));
   var bc = allDone ? 'dn' : ddayCls(dday);
-  var bt = allDone ? '✅ 완료' : fmtDDay(dday);
+  var bt = allDone ? '✅ 완성' : fmtDDay(dday);
   titleDiv.appendChild(e('span', 'dday ' + bc, bt));
 
   var pright = head.appendChild(e('div', 'pright'));
@@ -595,15 +712,30 @@ function buildCard(proj) {
 
       var blk = slist.appendChild(e('div', 'sblock' + (isDone ? ' ok-block' : '')));
 
-      // 블록 헤더
+      // 블록 헤더 (토글 포함)
       var sh = blk.appendChild(e('div', 'shead'));
+      sh.style.cursor = 'pointer';
+      sh.addEventListener('click', function(ev) {
+        if (!ev.target.closest('.sdel-btn')) {
+          blk.classList.toggle('sblock-collapsed');
+        }
+      });
       var sl = sh.appendChild(e('div', 'shead-left'));
       sl.appendChild(e('span', 'sname', stage.name));
       if (stage.date) {
         var sdTxt = isDone ? '완료 ✓' : (stage.date + ' ' + fmtDDay(sd));
         sl.appendChild(e('span', 'sdday ' + (isDone ? 'ok' : ddayCls(sd)), sdTxt));
       }
-      sh.appendChild(e('span', 'spct', spct + '%'));
+      var sheadRight = sh.appendChild(e('div', 'sblock-head-wrap'));
+      sheadRight.appendChild(e('span', 'spct', spct + '%'));
+      var delSBtn = sheadRight.appendChild(e('button', 'sdel-btn', '🗑'));
+      delSBtn.title = '단계 삭제';
+      delSBtn.addEventListener('click', (function(pid, sid) {
+        return function(ev) {
+          ev.stopPropagation();
+          deleteStage(pid, sid);
+        };
+      })(proj.id, stage.id));
 
       // 블록 바디
       var sb = blk.appendChild(e('div', 'sbody'));
@@ -662,14 +794,43 @@ function buildCard(proj) {
     })(stages[si]);
   }
 
-  // ── 카드 내 단계 추가
+  // ── 카드 내 단계 추가 (칩 UI)
   var aw = body.appendChild(e('div'));
   aw.appendChild(e('div', 'sec', '단계 추가'));
   var ia = aw.appendChild(e('div', 'inline-adder'));
-  var iar = ia.appendChild(e('div', 'inline-adder-row'));
+
+  // 칩 행
+  var chipRow = ia.appendChild(e('div', 'stage-chips'));
+  var chipNames = STAGE_CHIPS[proj.type] || STAGE_CHIPS.custom;
+  var cardPopId = 'card-date-popup-' + proj.id;
+  chipNames.forEach(function(cname) {
+    var chip = chipRow.appendChild(e('button', 'schip', cname));
+    chip.addEventListener('click', (function(pid, n, popId) {
+      return function() {
+        showChipDatePicker(popId, n, function(date) {
+          addStageInCardByName(pid, n, date);
+        });
+      };
+    })(proj.id, cname, cardPopId));
+  });
+  // 직접 입력 칩
+  var customChipCard = chipRow.appendChild(e('button', 'schip custom-chip', '✏️ 직접 입력'));
+  customChipCard.addEventListener('click', function() {
+    var row = document.getElementById('ic-row-' + proj.id);
+    if (row) row.classList.toggle('show');
+    var inp = document.getElementById('cn-' + proj.id);
+    if (inp && document.getElementById('ic-row-' + proj.id).classList.contains('show')) inp.focus();
+  });
+  // 팝업 컨테이너
+  var cardPop = ia.appendChild(e('div', 'date-popup'));
+  cardPop.id = cardPopId;
+
+  // 직접 입력 행 (숨김)
+  var iar = ia.appendChild(e('div', 'custom-input-row'));
+  iar.id = 'ic-row-' + proj.id;
 
   var cnInp = document.createElement('input');
-  cnInp.type = 'text'; cnInp.placeholder = '단계 이름'; cnInp.maxLength = 20;
+  cnInp.type = 'text'; cnInp.placeholder = '단계 이름 직접 입력'; cnInp.maxLength = 20;
   cnInp.id = 'cn-' + proj.id;
   iar.appendChild(cnInp);
 
@@ -685,7 +846,7 @@ function buildCard(proj) {
   cnInp.addEventListener('keydown', (function(pid) {
     return function(ev) { if (ev.key === 'Enter') addStageInCard(pid); };
   })(proj.id));
-  ia.appendChild(e('div', 'hint', '📅 단계 마감일은 선택사항이에요'));
+  ia.appendChild(e('div', 'hint', '📅 단계 마감일은 직접 입력 시 선택사항'));
 
   // ── 메모
   var mw = body.appendChild(e('div'));
