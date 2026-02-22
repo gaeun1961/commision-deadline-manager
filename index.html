@@ -150,7 +150,13 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .loglist{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}
 .loglist::-webkit-scrollbar{width:3px}
 .loglist::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.logitem{display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border)}
+.logitem{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border)}
+.log-btns{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
+.log-edit-btn,.log-del-btn{background:none;border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px 7px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all var(--tr)}
+.log-edit-btn{color:var(--t2)}
+.log-edit-btn:hover{color:var(--yellow);border-color:var(--yellow);background:rgba(255,217,61,.08)}
+.log-del-btn{color:var(--t3)}
+.log-del-btn:hover{color:var(--red);border-color:var(--red);background:rgba(255,107,107,.08)}
 .ldate{font-family:'Space Mono',monospace;font-size:10px;color:var(--t3);min-width:76px}
 .lamt{font-family:'Space Mono',monospace;font-weight:700;color:var(--green);min-width:50px}
 .lnote{color:var(--t2);font-size:11px}
@@ -174,7 +180,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 /* 단계 직접입력 (칩 선택 후 표시) */
 .custom-input-row{display:none;gap:8px;align-items:center;margin-top:8px}
 .custom-input-row.show{display:flex}
-.custom-input-row input[type=text]{flex:1;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:13px}
+.custom-input-row input[type=text]{flex:1;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:13px;color:var(--text)}
 
 /* 단계 블록 토글 */
 .sblock-head-wrap{display:flex;align-items:center;justify-content:space-between}
@@ -192,6 +198,10 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .popup-ok{width:100%;padding:8px;background:var(--green);border:none;border-radius:6px;color:#0e0e12;font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all var(--tr)}
 .popup-ok:hover{background:#55c462}
 .popup-hint{font-size:10px;color:var(--t3)}
+
+/* 컷 수 수정 버튼 */
+.edit-cuts-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:10px;padding:1px 5px;border-radius:4px;margin-left:6px;transition:all var(--tr);font-family:'Noto Sans KR',sans-serif}
+.edit-cuts-btn:hover{color:var(--yellow);background:rgba(255,217,61,.1)}
 
 /* 단계 삭제 버튼 */
 .sdel-btn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;transition:all var(--tr);line-height:1}
@@ -480,6 +490,46 @@ function submitProject() {
 }
 
 // ================================================================
+// 로그 수정 / 삭제
+// ================================================================
+function editLog(projId, stageId, logIdx) {
+  var proj  = getProj(projId);  if (!proj)  return;
+  var stage = getStage(proj, stageId); if (!stage) return;
+  var log   = stage.logs[logIdx]; if (!log) return;
+  var val = prompt('컷 수를 수정해주세요', log.amount);
+  if (val === null) return;
+  var num = parseInt(val, 10);
+  if (!num || num < 1) { alert('올바른 숫자를 입력해주세요.'); return; }
+  log.amount = num;
+  log.note = '수정됨';
+  save();
+  refreshCard(projId);
+}
+
+function deleteLog(projId, stageId, logIdx) {
+  if (!confirm('이 기록을 삭제할까요?')) return;
+  var proj  = getProj(projId);  if (!proj)  return;
+  var stage = getStage(proj, stageId); if (!stage) return;
+  stage.logs.splice(logIdx, 1);
+  save();
+  refreshCard(projId);
+}
+
+// ================================================================
+// 전체 컷 수 수정
+// ================================================================
+function editTotalCuts(projId) {
+  var proj = getProj(projId); if (!proj) return;
+  var val = prompt('전체 컷 수를 입력해주세요', proj.totalCuts);
+  if (val === null) return;
+  var num = parseInt(val, 10);
+  if (!num || num < 1) { alert('올바른 숫자를 입력해주세요.'); return; }
+  proj.totalCuts = num;
+  save();
+  refreshCard(projId);
+}
+
+// ================================================================
 // 단계 삭제
 // ================================================================
 function deleteStage(projId, stageId) {
@@ -605,7 +655,14 @@ function refreshCard(projId) {
   var proj = getProj(projId); if (!proj) return;
   var old = document.getElementById('card-' + projId); if (!old) return;
   var wasOpen = old.classList.contains('open');
-  var newCard = buildCard(proj);
+  // 접혀있던 단계들 기억
+  var collapsed = {};
+  old.querySelectorAll('.sblock').forEach(function(blk) {
+    if (blk.dataset.stageId && blk.classList.contains('sblock-collapsed')) {
+      collapsed[blk.dataset.stageId] = true;
+    }
+  });
+  var newCard = buildCard(proj, collapsed);
   if (wasOpen) newCard.classList.add('open');
   old.parentNode.replaceChild(newCard, old);
 }
@@ -613,7 +670,8 @@ function refreshCard(projId) {
 // ================================================================
 // 카드 빌드
 // ================================================================
-function buildCard(proj) {
+function buildCard(proj, collapsed) {
+  collapsed = collapsed || {};
   var isW    = proj.type === 'webtoon';
   var stages = proj.stages;
   var dday   = getDDay(proj.date);
@@ -700,8 +758,16 @@ function buildCard(proj) {
   var r2f = r2b.appendChild(e('div', 'bar-fill-b'));
   r2f.style.width = stagePct + '%';
 
-  var subTxt = '마감 ' + proj.date + (isW ? ' · 전체 ' + proj.totalCuts + '컷' : '');
-  dp.appendChild(e('div', 'prog-sub', subTxt));
+  var subRow = dp.appendChild(e('div', 'prog-sub'));
+  if (isW) {
+    subRow.textContent = '마감 ' + proj.date + ' · 전체 ' + proj.totalCuts + '컷';
+    var editCutsBtn = subRow.appendChild(e('button', 'edit-cuts-btn', '✏️ 수정'));
+    editCutsBtn.addEventListener('click', (function(pid) {
+      return function() { editTotalCuts(pid); };
+    })(proj.id));
+  } else {
+    subRow.textContent = '마감 ' + proj.date;
+  }
 
   // ── 단계 목록
   var sw = body.appendChild(e('div'));
@@ -718,7 +784,8 @@ function buildCard(proj) {
       var spct = isW ? Math.min(100, Math.round(cuts / (proj.totalCuts || 1) * 100)) : (stage.done ? 100 : 0);
       var isDone = isW ? spct >= 100 : stage.done;
 
-      var blk = slist.appendChild(e('div', 'sblock' + (isDone ? ' ok-block' : '')));
+      var blk = slist.appendChild(e('div', 'sblock' + (isDone ? ' ok-block' : '') + (collapsed[stage.id] ? ' sblock-collapsed' : '')));
+      blk.dataset.stageId = stage.id;
 
       // 블록 헤더 (토글 포함)
       var sh = blk.appendChild(e('div', 'shead'));
@@ -791,12 +858,26 @@ function buildCard(proj) {
         sb.appendChild(e('div', 'sec', '로그'));
         var ll = sb.appendChild(e('div', 'loglist'));
         var reversed = stage.logs.slice().reverse();
+        // reversed[i]의 원본 인덱스 = logs.length - 1 - i
         for (var li = 0; li < reversed.length; li++) {
           var lg = reversed[li];
+          var origIdx = stage.logs.length - 1 - li;
           var li2 = ll.appendChild(e('div', 'logitem'));
           li2.appendChild(e('span', 'ldate', lg.date));
           li2.appendChild(e('span', 'lamt', lg.amount !== null ? '+' + lg.amount + '컷' : '—'));
           li2.appendChild(e('span', 'lnote', lg.note));
+          // 웹툰 컷 로그만 수정/삭제 가능
+          if (lg.amount !== null) {
+            var logBtns = li2.appendChild(e('div', 'log-btns'));
+            var editLogBtn = logBtns.appendChild(e('button', 'log-edit-btn', '수정'));
+            editLogBtn.addEventListener('click', (function(pid, sid, idx) {
+              return function() { editLog(pid, sid, idx); };
+            })(proj.id, stage.id, origIdx));
+            var delLogBtn = logBtns.appendChild(e('button', 'log-del-btn', '삭제'));
+            delLogBtn.addEventListener('click', (function(pid, sid, idx) {
+              return function() { deleteLog(pid, sid, idx); };
+            })(proj.id, stage.id, origIdx));
+          }
         }
       }
     })(stages[si]);
