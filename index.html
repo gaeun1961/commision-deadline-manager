@@ -167,6 +167,17 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .inline-adder-row input[type=text]{flex:1;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:13px}
 .inline-adder-row input[type=date]{background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;width:140px;flex-shrink:0}
 
+/* 단계 메모 */
+.stage-memo-wrap,.stage-date-edit-wrap{margin-top:4px}
+.stage-memo{width:100%;min-height:48px;resize:vertical;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:12px;outline:none;transition:border-color var(--tr)}
+.stage-memo:focus{border-color:var(--green)}
+.stage-memo::placeholder{color:var(--t3)}
+.stage-date-row{display:flex;gap:8px;align-items:center}
+.stage-date-inp{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none;transition:border-color var(--tr)}
+.stage-date-inp:focus{border-color:var(--green)}
+.stage-date-inp::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
+.sdbtn{padding:7px 12px !important;font-size:12px !important}
+
 /* 메모 */
 .memo{min-height:56px;resize:vertical}
 .memo::placeholder{color:var(--t3)}
@@ -502,6 +513,27 @@ function submitProject() {
 }
 
 // ================================================================
+// 단계 메모 저장
+// ================================================================
+function saveStageMemo(projId, stageId, val) {
+  var proj  = getProj(projId);  if (!proj)  return;
+  var stage = getStage(proj, stageId); if (!stage) return;
+  stage.memo = val.slice(0, 200);
+  save();
+}
+
+// ================================================================
+// 단계 날짜 저장/삭제
+// ================================================================
+function saveStageDate(projId, stageId, val) {
+  var proj  = getProj(projId);  if (!proj)  return;
+  var stage = getStage(proj, stageId); if (!stage) return;
+  stage.date = val;
+  save();
+  refreshCard(projId);
+}
+
+// ================================================================
 // 로그 수정 / 삭제
 // ================================================================
 function editLog(projId, stageId, logIdx) {
@@ -613,7 +645,7 @@ function addStageInCard(projId) {
   if (!nameEl) return;
   var name = nameEl.value.trim().slice(0, 20);
   if (!name) { alert('단계 이름을 입력해주세요.'); return; }
-  proj.stages.push({ id: uid(), name: name, date: dateEl.value, logs: [], done: false });
+  proj.stages.push({ id: uid(), name: name, date: dateEl.value, logs: [], done: false, memo: '' });
   nameEl.value = '';
   if (dateEl) dateEl.value = '';
   save();
@@ -622,7 +654,7 @@ function addStageInCard(projId) {
 
 function addStageInCardByName(projId, name, date) {
   var proj = getProj(projId); if (!proj) return;
-  proj.stages.push({ id: uid(), name: name, date: date || '', logs: [], done: false });
+  proj.stages.push({ id: uid(), name: name, date: date || '', logs: [], done: false, memo: '' });
   save();
   refreshCard(projId);
 }
@@ -892,6 +924,38 @@ function buildCard(proj, collapsed) {
           }
         }
       }
+      // ── 단계 메모
+      var smWrap = sb.appendChild(e('div', 'stage-memo-wrap'));
+      var smLabel = smWrap.appendChild(e('div', 'sec', '단계 메모'));
+      var smTa = smWrap.appendChild(document.createElement('textarea'));
+      smTa.className = 'stage-memo';
+      smTa.placeholder = '이 단계에서 신경 쓸 것, 참고사항 등...';
+      smTa.maxLength = 200;
+      smTa.value = stage.memo || '';
+      smTa.addEventListener('input', (function(pid, sid) {
+        return function() { saveStageMemo(pid, sid, smTa.value); };
+      })(proj.id, stage.id));
+
+      // ── 단계 날짜 추가/변경
+      var sdWrap = sb.appendChild(e('div', 'stage-date-edit-wrap'));
+      var sdLabel = sdWrap.appendChild(e('div', 'sec', '단계 마감일'));
+      var sdRow = sdWrap.appendChild(e('div', 'stage-date-row'));
+      var sdInp = document.createElement('input');
+      sdInp.type = 'date';
+      sdInp.className = 'stage-date-inp';
+      sdInp.value = stage.date || '';
+      sdRow.appendChild(sdInp);
+      var sdBtn = sdRow.appendChild(e('button', 'btn-g sdbtn', '저장'));
+      sdBtn.addEventListener('click', (function(pid, sid) {
+        return function() { saveStageDate(pid, sid, sdInp.value); };
+      })(proj.id, stage.id));
+      if (stage.date) {
+        var sdClear = sdRow.appendChild(e('button', 'log-del-btn sdbtn', '삭제'));
+        sdClear.addEventListener('click', (function(pid, sid) {
+          return function() { saveStageDate(pid, sid, ''); };
+        })(proj.id, stage.id));
+      }
+
     })(stages[si]);
   }
 
