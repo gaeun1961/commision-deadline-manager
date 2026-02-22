@@ -178,9 +178,11 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .schip.custom-chip{border-style:dashed}
 
 /* 단계 직접입력 (칩 선택 후 표시) */
-.custom-input-row{display:none;gap:8px;align-items:center;margin-top:8px}
+.custom-input-row{display:none;flex-direction:column;gap:8px;margin-top:8px}
 .custom-input-row.show{display:flex}
-.custom-input-row input[type=text]{flex:1;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:13px;color:var(--text)}
+.custom-input-row input[type=text],.custom-input-row input[type=date]{width:100%;background:var(--surface) !important;border:1px solid var(--border) !important;border-radius:6px;padding:8px 12px;font-size:13px;color:var(--text) !important}
+.custom-input-row input::placeholder{color:var(--t2) !important}
+.custom-input-row .btn-g{width:100%}
 
 /* 단계 블록 토글 */
 .sblock-head-wrap{display:flex;align-items:center;justify-content:space-between}
@@ -454,6 +456,16 @@ function submitProject() {
   if (!name)  { alert('작업 이름을 입력해주세요.'); return; }
   if (!date)  { alert('마감일을 입력해주세요.'); return; }
   if (type === 'webtoon' && (!cuts || cuts < 1)) { alert('전체 컷 수를 입력해주세요.'); return; }
+
+  // 직접입력란에 텍스트가 남아있으면 자동으로 formStages에 추가
+  var snameEl = document.getElementById('new-sname');
+  if (snameEl && snameEl.value.trim()) {
+    var leftover = snameEl.value.trim().slice(0, 20);
+    var sdateEl = document.getElementById('new-sdate');
+    formStages.push({ name: leftover, date: sdateEl ? sdateEl.value : '' });
+    snameEl.value = '';
+  }
+
   if (formStages.length === 0) { alert('단계를 최소 1개 이상 추가해주세요.'); return; }
 
   var stages = [];
