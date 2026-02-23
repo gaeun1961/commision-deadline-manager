@@ -20,12 +20,30 @@
   --text:#e8e8f0; --t2:#8888aa; --t3:#555570;
   --r:12px; --tr:.2s ease;
 }
+
+/* 라이트 모드 */
+body.light {
+  --bg:#f5f4f0; --surface:#ffffff; --s2:#f0ede8; --border:#ddd9d2;
+  --red:#e05555; --yellow:#d4900a; --green:#3a9e4a; --blue:#3a6fa8;
+  --text:#1a1816; --t2:#6b6560; --t3:#aaa59f;
+}
+
+/* 테마 토글 버튼 */
+.theme-toggle {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 14px;
+  color: var(--t2); font-family: 'Space Mono', monospace;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  transition: all var(--tr); white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.theme-toggle:hover { border-color: var(--red); color: var(--text); }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;padding:24px 16px 80px}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
 
-header{max-width:820px;margin:0 auto 32px;display:flex;align-items:baseline;gap:12px}
-header h1{font-size:22px;font-weight:900;letter-spacing:-.5px}
+header{max-width:820px;margin:0 auto 32px;display:flex;align-items:center;gap:12px}
+header h1{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-right:auto}
 header h1 span{color:var(--red)}
 header p{font-size:12px;color:var(--t3);font-family:'Space Mono',monospace}
 
@@ -57,7 +75,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .adder-row input[type=date]{background:var(--bg);border-radius:6px;padding:9px 10px;font-size:12px;width:145px;flex-shrink:0}
 .hint{font-size:10px;color:var(--t3)}
 
-.btn-g{padding:9px 16px;background:var(--green);color:#0e0e12;border:none;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.btn-g{padding:9px 16px;background:var(--green);color:#fff;border:none;border-radius:6px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap}
 .btn-g:hover{background:#55c462}
 .btn-r{width:100%;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all var(--tr)}
 .btn-r:hover{background:#ff4f4f;transform:translateY(-1px)}
@@ -112,7 +130,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 .sblock{background:var(--s2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .sblock.ok-block{border-color:rgba(107,203,119,.3)}
 
-.shead{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);transition:background var(--tr)}
+.shead{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);transition:background var(--tr);cursor:pointer}
 .shead:hover{background:rgba(255,255,255,.05)}
 .sblock-head-wrap{display:flex;align-items:center;gap:10px}
 .shead-left{display:flex;align-items:center;gap:8px}
@@ -231,7 +249,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:poi
 
 <header>
   <h1>작업 <span>마감</span> 시뮬레이터</h1>
-  <p>// deadline manager</p>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ 라이트</button>
 </header>
 
 <div class="wrap">
@@ -1042,9 +1060,26 @@ function renderAll() {
 }
 
 // ================================================================
+// 테마 토글
+// ================================================================
+function toggleTheme() {
+  var isLight = document.body.classList.toggle('light');
+  var btn = document.getElementById('theme-btn');
+  btn.textContent = isLight ? '🌙 다크' : '☀️ 라이트';
+  try { localStorage.setItem('theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+
+// ================================================================
 // 초기화
 // ================================================================
 setType('webtoon');
+// 저장된 테마 복원
+try {
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('theme-btn').textContent = '🌙 다크';
+  }
+} catch(e) {}
 renderAll();
 </script>
 </body>
